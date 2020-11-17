@@ -5,6 +5,7 @@ module.exports = {
   },
   plugins: [
     'vue',
+    "babel"
   ],
   extends: [
     'plugin:vue/essential',
@@ -17,5 +18,9 @@ module.exports = {
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-unused-expressions': 'off',
+    'babel/no-unused-expressions': 'error',
+    'semi': 'off',
+    '@typescript-eslint/semi': 'error',
   },
 };

@@ -12,6 +12,9 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "allowJs": true,
+    "composite": true,
+    "declarationMap": true,
     "types": [
       "webpack-env"
     ],
@@ -21,18 +24,13 @@
       ]
     },
     "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "scripthost"
-    ]
+      "es2019.array", "es2019", "DOM", "DOM.Iterable", "ScriptHost"
+    ],
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
   ],
   "exclude": [
     "node_modules"
