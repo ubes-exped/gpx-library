@@ -3,6 +3,9 @@ module.exports = {
   env: {
     node: true,
   },
+  plugins: [
+    'vue',
+  ],
   extends: [
     'plugin:vue/essential',
     '@vue/airbnb',

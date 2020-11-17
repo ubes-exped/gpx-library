@@ -8,6 +8,17 @@
   </div>
 </template>
 
+<script lang="ts">
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import appName from './appName';
+
+@Component
+export default class Home extends Vue {
+  appName = appName;
+}
+</script>
+
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
