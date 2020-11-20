@@ -1,8 +1,12 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/map">Map</router-link>
+      <router-link to="/">
+        Home
+      </router-link> |
+      <router-link to="/map">
+        Map
+      </router-link>
     </div>
     <router-view :walks="walks" />
   </div>
@@ -11,7 +15,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import Walk from '@/interfaces/Walk';
+import Walk, { RawWalk } from '@/interfaces/Walk';
 import appName from './appName';
 
 @Component
@@ -22,8 +26,8 @@ export default class Home extends Vue {
 
   async created() {
     const walksResponse = await fetch('https://routes.ubes.co.uk/generated/data.json');
-    const rawWalks: Omit<Walk, 'id'>[] = await walksResponse.json();
-    this.walks = rawWalks.map((walk, id) => ({ ...walk, id }));
+    const rawWalks: RawWalk[] = await walksResponse.json();
+    this.walks = rawWalks.map((walk) => new Walk(walk));
   }
 }
 </script>

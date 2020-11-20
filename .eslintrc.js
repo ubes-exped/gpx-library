@@ -3,24 +3,29 @@ module.exports = {
   env: {
     node: true,
   },
+  parserOptions: {
+    parser: '@typescript-eslint/parser',
+    tsconfigRootDir: __dirname,
+    ecmaVersion: 2020,
+    project: './tsconfig.json',
+    extraFileExtensions: ['.vue'],
+  },
   plugins: [
-    'vue',
-    "babel"
+    '@vue',
+    'babel',
+    '@typescript-eslint',
   ],
   extends: [
-    'plugin:vue/essential',
+    'plugin:vue/recommended',
+    '@vue/typescript',
     '@vue/airbnb',
-    '@vue/typescript/recommended',
   ],
-  parserOptions: {
-    ecmaVersion: 2020,
-  },
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-unused-expressions': 'off',
     'babel/no-unused-expressions': 'error',
-    'semi': 'off',
+    semi: 'off',
     '@typescript-eslint/semi': 'error',
   },
 };

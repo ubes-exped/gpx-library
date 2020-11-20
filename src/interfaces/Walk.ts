@@ -1,7 +1,7 @@
 export interface WalkSegment {
-heights: number[];
-length: number;
-polyline: string;
+  heights: number[];
+  length: number;
+  polyline: string;
 }
 
 export interface RawWalk {
@@ -27,10 +27,10 @@ export default class Walk {
     this.segments = walk.segments;
   }
 
-  #distance?: number;
+  #distance?:number;
 
-  get distance() {
-    this.#distance ?? (this.#distance = this.segments.reduce((acc, segment) => acc + segment.length, 0));
+  get distance(): number {
+    this.#distance ??= this.segments.reduce((acc, segment) => acc + segment.length, 0);
     return this.#distance;
   }
 }
