@@ -27,7 +27,7 @@ export default class Walk {
     this.segments = walk.segments;
   }
 
-  #distance?:number;
+  #distance?: number;
 
   get distance(): number {
     this.#distance ??= this.segments.reduce((acc, segment) => acc + segment.length, 0);

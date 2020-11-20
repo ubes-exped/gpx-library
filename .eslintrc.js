@@ -27,5 +27,6 @@ module.exports = {
     'babel/no-unused-expressions': 'error',
     semi: 'off',
     '@typescript-eslint/semi': 'error',
+    '@typescript-eslint/type-annotation-spacing': 'error',
   },
 };
