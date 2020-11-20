@@ -6,7 +6,10 @@
       :walks="walks"
       :selected.sync="selected"
     />
-    <Sidebar :walks="walks" :selected.sync="selected" />
+    <Sidebar
+      :walks="walks"
+      :selected.sync="selected"
+    />
   </div>
 </template>
 
@@ -14,15 +17,14 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
-import HelloWorld from '@/components/HelloWorld.vue';
 import Map from '@/components/Map.vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Walk from '@/interfaces/Walk';
 
 @Component({
-  components: { HelloWorld, Map, Sidebar },
+  components: { Map, Sidebar },
 })
-export default class Home extends Vue {
+export default class MapView extends Vue {
   @Prop() walks!: Walk[];
 
   location = { lat: 51.45, lng: -2.6 };
@@ -38,5 +40,6 @@ export default class Home extends Vue {
   display: flex;
   flex-direction: row;
   flex: 1;
+  overflow: hidden;
 }
 </style>

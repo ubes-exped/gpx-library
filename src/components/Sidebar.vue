@@ -3,11 +3,16 @@
     <ul>
       <li
         v-for="walk of walks"
-        :key="walk.id"
-        :style="[walk.id === selected && { color: 'green' }]"
+        :key="walk.index"
+        :class="{ selected: walk.index === selected }"
       >
         <h2>{{ walk.name }}</h2>
-        <p>{{ walk.distance }} km, {{ walk.elevation }} m</p>
+        <h4>
+          ↔︎ {{ walk.distance.toFixed(1) }} km, ↗︎
+          {{ walk.ascent.toFixed(0) }} m
+        </h4>
+        <cite>{{ walk.author }}</cite>
+        <p>{{ walk.description }}</p>
       </li>
     </ul>
   </div>
@@ -19,9 +24,7 @@ import {
 } from 'vue-property-decorator';
 import Walk from '@/interfaces/Walk';
 
-@Component({
-  components: {},
-})
+@Component
 export default class Sidebar extends Vue {
   @Prop({ default: () => [] }) walks!: Walk[];
 
@@ -43,20 +46,32 @@ export default class Sidebar extends Vue {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
 .sidebar {
   flex: 0 20em;
   display: flex;
   flex-direction: column;
   color: var(--color);
   background-color: var(--background);
-}
+  overflow-y: auto;
 
-.sidebar > ul {
-  flex: 1;
-  overflow: auto;
-  margin: 0;
-  padding: 0 0 1em;
-  word-break: break-all;
+  > ul {
+    flex: 1;
+    overflow: auto;
+    margin: 0;
+    padding: 0;
+
+    > li {
+      list-style: none;
+      margin: 1em;
+      padding: 1em;
+      border-radius: 0.5em;
+      background-color: var(--background-slight);
+
+      &.selected {
+        background-color: var(--background-strong);
+      }
+    }
+  }
 }
 </style>

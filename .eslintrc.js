@@ -28,5 +28,10 @@ module.exports = {
     semi: 'off',
     '@typescript-eslint/semi': 'error',
     '@typescript-eslint/type-annotation-spacing': 'error',
+    'class-methods-use-this': 'off',
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error"
+    ],
   },
 };

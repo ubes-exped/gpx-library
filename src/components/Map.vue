@@ -1,14 +1,28 @@
-<script lang="tsx">
+<template>
+  <div
+    ref="container"
+    class="map-container"
+  >
+    <div
+      v-if="isFirstMap"
+      id="map"
+      ref="mapElem"
+    />
+  </div>
+</template>
+<script lang="ts">
 import {
-  Component, Vue, PropSync, Watch, Ref,
+  Component, Vue, PropSync, Watch, Ref, Emit,
 } from 'vue-property-decorator';
 
+import GeoJSON from 'geojson';
 import * as mapboxgl from 'mapbox-gl';
 import polyline from '@mapbox/polyline';
 import Walk from '@/interfaces/Walk';
 
 declare global {
   interface Window {
+    // eslint-disable-next-line no-use-before-define
     cachedMapComponent?: Map;
   }
 }
@@ -23,30 +37,18 @@ const fromZoom = (...pairs: [number, number][]): mapboxgl.Expression => [
 const makeGeoJsonData = (walks: Walk[] = []): GeoJSON.FeatureCollection => ({
   type: 'FeatureCollection',
   features: walks
-    .filter((walk) => walk.route)
+    .filter((walk) => walk.polyline)
     .map((walk) => ({
       type: 'Feature',
-      id: walk.id,
+      id: walk.index,
       properties: null,
-      geometry: polyline.toGeoJSON(walk.route),
+      geometry: polyline.toGeoJSON(walk.polyline),
     })),
 });
 
 const makeGeoJson = (): mapboxgl.GeoJSONSourceRaw => ({
   type: 'geojson',
   data: makeGeoJsonData(),
-});
-
-const buildLineLayer = (id: string, layer: LayerDef): mapboxgl.Layer => ({
-  id,
-  type: 'line',
-  source: layer.source,
-  layout: { 'line-join': 'round', 'line-cap': 'round' },
-  paint: {
-    'line-color': layer.color,
-    'line-opacity': layer.opacity,
-    'line-width': layer.width,
-  },
 });
 
 const sources = ['lines', 'selected'];
@@ -68,6 +70,18 @@ const layers = {
 
 type LayerDef = typeof layers[keyof typeof layers];
 
+const buildLineLayer = (id: string, layer: LayerDef): mapboxgl.Layer => ({
+  id,
+  type: 'line',
+  source: layer.source,
+  layout: { 'line-join': 'round', 'line-cap': 'round' },
+  paint: {
+    'line-color': layer.color,
+    'line-opacity': layer.opacity,
+    'line-width': layer.width,
+  },
+});
+
 @Component({
   head: {
     link: [
@@ -79,14 +93,7 @@ type LayerDef = typeof layers[keyof typeof layers];
   },
 })
 export default class Map extends Vue {
-  // eslint-disable-next-line class-methods-use-this
-  render() {
-    return (
-      <div class="map-container" ref="container">
-        {!window.cachedMapComponent && <div id="map" ref="mapElem" />}
-      </div>
-    );
-  }
+          isFirstMap: boolean=!window.cachedMapComponent;
 
   @PropSync('center', { required: true }) modelCenter!: mapboxgl.LngLatLike;
 
@@ -107,7 +114,7 @@ export default class Map extends Vue {
   localSelected: number | null = this.modelSelected;
 
   get selectedWalk() {
-    return this.modelWalks.find((walk) => this.modelSelected === walk.id) ?? null;
+    return this.modelWalks.find((walk) => this.modelSelected === walk.index) ?? null;
   }
 
   token =
@@ -127,12 +134,12 @@ export default class Map extends Vue {
     this.map?.setLayoutProperty(
       'improved-hillshading',
       'visibility',
-      improvedHillshade ? 'visible' : 'none'
+      improvedHillshade ? 'visible' : 'none',
     );
     this.map?.setLayoutProperty(
       'hillshade-greys',
       'visibility',
-      !improvedHillshade ? 'visible' : 'none'
+      !improvedHillshade ? 'visible' : 'none',
     );
   }
 
@@ -178,18 +185,19 @@ export default class Map extends Vue {
     this.modelZoom = map.getZoom();
   }
 
+@Emit('update:center')
   moveend(map: mapboxgl.Map) {
-    this.$emit('update:center', map.getCenter());
+    return map.getCenter();
   }
 
-  applyWalks(next: Walk[], sourceID: string) {
-    const source = this.map?.getSource(sourceID);
-    (source as mapboxgl.GeoJSONSource)?.setData(makeGeoJsonData(next));
-  }
+applyWalks(next: Walk[], sourceID: string) {
+  const source = this.map?.getSource(sourceID);
+  (source as mapboxgl.GeoJSONSource)?.setData(makeGeoJsonData(next));
+}
 
   @Watch('modelWalks') onWalks() {
-    this.applyWalks(this.modelWalks, 'lines');
-  }
+  this.applyWalks(this.modelWalks, 'lines');
+}
 
   @Watch('selectedWalk') onSelectedWalk() {
     this.applyWalks(this.selectedWalk !== null ? [this.selectedWalk] : [], 'selected');
