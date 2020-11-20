@@ -21,7 +21,7 @@ export default class Home extends Vue {
   walks: Walk[] = [];
 
   async created() {
-    const walksResponse = await fetch('/walks.json');
+    const walksResponse = await fetch('https://routes.ubes.co.uk/generated/data.json');
     const rawWalks: Omit<Walk, 'id'>[] = await walksResponse.json();
     this.walks = rawWalks.map((walk, id) => ({ ...walk, id }));
   }
