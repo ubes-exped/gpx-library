@@ -26,7 +26,11 @@
           {{ walk.ascent.toFixed(0) }} m
         </p>
         <div class="details" v-if="walk.index === selected">
-          <div v-html="walk.elevationGraph" />
+          <div
+            v-html="walk.elevationGraph"
+            @mousemove="graphHover.send(walk, $event)"
+            @mouseleave="graphHover.clear()"
+          />
           <p>
             Created by <cite>{{ walk.author }}</cite>
           </p>
@@ -59,6 +63,47 @@ type KeysByType<Object, ValueType> = Exclude<
   }[keyof Object],
   undefined
 >;
+
+/**
+ * Throttle a function, so it only gets called every `wait` ms
+ *
+ * The function gets called immediately if it hasn’t been called in the last `wait` ms.
+ * Otherwise, it is called `wait` ms after it was last called, with the most recent values passed
+ * to it.
+ */
+function throttle<T extends any[]>(
+  func: (...args: T) => void,
+  onClear?: () => void,
+  wait = 100
+) {
+  let cachedArgs: T | undefined;
+  let timeout: number | undefined;
+
+  const callAndTimeout = (...args: T) => {
+    func(...args);
+    timeout = setTimeout(() => {
+      if (cachedArgs) {
+        callAndTimeout(...cachedArgs);
+        cachedArgs = undefined;
+      } else {
+        timeout = undefined;
+      }
+    }, wait);
+  };
+
+  const send = function(...args: T) {
+    if (!timeout) callAndTimeout(...args);
+    else cachedArgs = args;
+  };
+
+  const clear = () => {
+    clearTimeout(timeout);
+    timeout = cachedArgs = timeout = undefined;
+    onClear?.();
+  };
+
+  return { send, clear };
+}
 
 @Component
 export default class Sidebar extends Vue {
@@ -99,6 +144,22 @@ export default class Sidebar extends Vue {
       if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
   }
+
+  @Emit("hover-point") hoverPoint(point?: { lat: number; long: number }) {
+    return point;
+  }
+
+  graphHover = throttle(
+    (walk: Walk, event: MouseEvent) => {
+      if (!walk || !event) return;
+      const target = event.target as HTMLElement;
+      const box = target.getBoundingClientRect();
+      const offset = (event.clientX - box.x) / box.width;
+      const point = walk.getOffset(offset);
+      this.hoverPoint(point);
+    },
+    () => this.hoverPoint()
+  );
 }
 </script>
 

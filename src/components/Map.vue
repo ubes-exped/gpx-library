@@ -10,13 +10,14 @@ import {
   PropSync,
   Watch,
   Ref,
-  Emit
+  Emit,
+  Prop
 } from "vue-property-decorator";
 
 import GeoJSON from "geojson";
 import * as mapboxgl from "mapbox-gl";
 import polyline from "@mapbox/polyline";
-import Walk from "@/interfaces/Walk";
+import Walk, { PointOnLine } from "@/interfaces/Walk";
 
 declare global {
   interface Window {
@@ -60,7 +61,7 @@ const layers = {
   },
   selected: {
     source: "selected",
-    color: "#0F0",
+    color: "#F00",
     opacity: 1,
     width: fromZoom([5, 4], [17, 8])
   }
@@ -80,6 +81,12 @@ const buildLineLayer = (id: string, layer: LayerDef): mapboxgl.Layer => ({
   }
 });
 
+const makeMarker = () => {
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = '<div class="arrowhead"><div class="arrow"></div></div>';
+  return wrapper;
+};
+
 @Component({
   head: {
     link: [
@@ -92,6 +99,10 @@ const buildLineLayer = (id: string, layer: LayerDef): mapboxgl.Layer => ({
 })
 export default class Map extends Vue {
   isFirstMap: boolean = !window.cachedMapComponent;
+
+  @Prop({ default: null }) hoveredPoint!: PointOnLine | null;
+
+  hoveredMarker = new mapboxgl.Marker(makeMarker());
 
   @PropSync("center", { required: true }) modelCenter!: mapboxgl.LngLatLike;
 
@@ -134,6 +145,20 @@ export default class Map extends Vue {
     );
 
     this.applyProps();
+  }
+
+  @Watch("hoveredPoint", { immediate: true })
+  onHoveredPoint(point: PointOnLine | null) {
+    if (!point) {
+      this.hoveredMarker.remove();
+    } else {
+      this.hoveredMarker.setLngLat([point.long, point.lat]);
+      const arrowhead = this.hoveredMarker
+        .getElement()
+        .querySelector(".arrowhead") as HTMLElement;
+      arrowhead.style.transform = `rotate(${point.bearing}deg)`;
+      if (this.map) this.hoveredMarker.addTo(this.map);
+    }
   }
 
   click(map: mapboxgl.Map, e: mapboxgl.MapMouseEvent) {
@@ -198,6 +223,7 @@ export default class Map extends Vue {
 
   applyProps() {
     this.onWalks();
+    this.onSelectedWalk();
   }
 
   zoomToSelected() {
@@ -282,5 +308,18 @@ export default class Map extends Vue {
 
 .mapboxgl-canvas {
   cursor: pointer;
+}
+
+#map .arrowhead {
+  font-size: 0.8em;
+  padding-bottom: 2em;
+}
+#map .arrow {
+  width: 0;
+  height: 0;
+  border-left: 1em solid transparent;
+  border-right: 1em solid transparent;
+
+  border-bottom: 2em solid #f00;
 }
 </style>
