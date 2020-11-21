@@ -21,6 +21,13 @@ jobs:
             return commit_details.data.committer.date
       - name: Use Node.js
         uses: actions/setup-node@v1
+      - name: Cache NPM
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: yarn build
         run: |
           npm install -g yarn
