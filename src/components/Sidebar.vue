@@ -25,7 +25,8 @@
           ↔︎ {{ walk.distance.toFixed(1) }} km, ↗︎
           {{ walk.ascent.toFixed(0) }} m
         </p>
-        <div class="details">
+        <div class="details" v-if="walk.index === selected">
+          <div v-html="walk.elevationGraph" />
           <p>
             Created by <cite>{{ walk.author }}</cite>
           </p>
@@ -131,17 +132,9 @@ export default class Sidebar extends Vue {
       display: flex;
       flex-direction: column;
 
-      .details {
-        display: none;
-      }
-
       &.selected {
         background-color: var(--background-strong);
         cursor: unset;
-
-        .details {
-          display: unset;
-        }
       }
 
       h2,
