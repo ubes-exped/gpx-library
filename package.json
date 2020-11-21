@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build; zip -r dist.zip dist",
+    "build": "vue-cli-service build && zip -r dist.zip dist",
+    "deploy": "scp dist.zip ubes:walks && ssh ubes 'walks/deploy.sh'",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
