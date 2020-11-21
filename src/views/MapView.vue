@@ -1,5 +1,5 @@
 <template>
-  <div class="map">
+  <div class="map-view">
     <Sidebar
       :walks="walks"
       :selected.sync="selected"
@@ -89,7 +89,7 @@ export default class MapView extends Vue {
 </script>
 
 <style scoped>
-.map {
+.map-view {
   display: flex;
   flex-direction: row;
   flex: 1;

@@ -227,7 +227,7 @@ $sidebar-width: 25em;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-height: 10vh;
+  height: 10vh;
 
   // Prevent Sass complaining about invert
   @function invert($options...) {
@@ -241,7 +241,7 @@ $sidebar-width: 25em;
   .logo {
     filter: invert(var(--invert));
     align-self: stretch;
-    max-width: 23em;
+    max-width: $sidebar-width - 2em;
     transition: max-width 0.5s;
   }
 
@@ -268,13 +268,17 @@ $sidebar-width: 25em;
   }
 
   .sidebar {
-    margin-right: -20em;
-    margin-right: calc(5em - min(#{$sidebar-width}, #{$max-sidebar-width}));
+    $sidebar-overlap-fallback: -20em;
+    $sidebar-overlap: calc(5em - min(#{$sidebar-width}, #{$max-sidebar-width}));
+
+    margin-right: $sidebar-overlap-fallback;
+    margin-right: $sidebar-overlap;
 
     &.minimised {
-      margin-left: -20em;
+      margin-left: $sidebar-overlap-fallback;
+      margin-left: $sidebar-overlap;
       margin-right: 0;
-      padding-left: calc(#{$sidebar-width} - #{$max-sidebar-width});
+      /* padding-left: calc(#{$sidebar-width} - #{$max-sidebar-width}); */
 
       > ul {
         margin-left: -5em;
