@@ -18,7 +18,7 @@ jobs:
           result-encoding: string
           script: |
             const commit_details = await github.git.getCommit({owner: context.repo.owner, repo: context.repo.repo, commit_sha: context.sha});
-            return commit_details.data.committer.date.replace(':','-')
+            return commit_details.data.committer.date.replaceAll(':','-')
       - name: Use Node.js
         uses: actions/setup-node@v1
       - name: Cache NPM
