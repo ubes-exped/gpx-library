@@ -10,13 +10,15 @@ import {
   PropSync,
   Watch,
   Ref,
-  Emit
+  Emit,
+  Prop
 } from "vue-property-decorator";
 
 import GeoJSON from "geojson";
 import * as mapboxgl from "mapbox-gl";
 import polyline from "@mapbox/polyline";
-import Walk from "@/interfaces/Walk";
+import Walk, { PointOnLine } from "@/interfaces/Walk";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 declare global {
   interface Window {
@@ -55,12 +57,12 @@ const layers = {
   lines: {
     source: "lines",
     color: "#00F",
-    opacity: fromZoom([5, 0.75], [10, 0.35]),
+    opacity: fromZoom([5, 0.75], [10, 0.55]),
     width: fromZoom([5, 1], [17, 4], [22, 8])
   },
   selected: {
     source: "selected",
-    color: "#0F0",
+    color: "#F00",
     opacity: 1,
     width: fromZoom([5, 4], [17, 8])
   }
@@ -80,18 +82,21 @@ const buildLineLayer = (id: string, layer: LayerDef): mapboxgl.Layer => ({
   }
 });
 
-@Component({
-  head: {
-    link: [
-      {
-        href: "https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.css",
-        rel: "stylesheet"
-      }
-    ]
-  }
-})
+const makeMarker = () => {
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = `<svg class="arrow" viewBox="0 0 500 800">
+		  <polygon points="100,400 400,400 250,100" class="triangle" />
+	  </svg>`;
+  return wrapper;
+};
+
+@Component
 export default class Map extends Vue {
   isFirstMap: boolean = !window.cachedMapComponent;
+
+  @Prop({ default: null }) hoveredPoint!: PointOnLine | null;
+
+  hoveredMarker = new mapboxgl.Marker(makeMarker());
 
   @PropSync("center", { required: true }) modelCenter!: mapboxgl.LngLatLike;
 
@@ -134,6 +139,20 @@ export default class Map extends Vue {
     );
 
     this.applyProps();
+  }
+
+  @Watch("hoveredPoint", { immediate: true })
+  onHoveredPoint(point: PointOnLine | null) {
+    if (!point) {
+      this.hoveredMarker.remove();
+    } else {
+      this.hoveredMarker.setLngLat([point.long, point.lat]);
+      const arrow = this.hoveredMarker
+        .getElement()
+        .querySelector(".arrow") as HTMLElement;
+      arrow.style.transform = `rotate(${point.bearing}deg)`;
+      if (this.map) this.hoveredMarker.addTo(this.map);
+    }
   }
 
   click(map: mapboxgl.Map, e: mapboxgl.MapMouseEvent) {
@@ -198,6 +217,7 @@ export default class Map extends Vue {
 
   applyProps() {
     this.onWalks();
+    this.onSelectedWalk();
   }
 
   zoomToSelected() {
@@ -240,6 +260,8 @@ export default class Map extends Vue {
     }
   }
 
+  resizeListener?: () => void;
+
   mounted() {
     let map: mapboxgl.Map;
     const cachedMap = window.cachedMapComponent?.map;
@@ -268,6 +290,16 @@ export default class Map extends Vue {
 
     // Apply provided props
     this.applyProps();
+
+    // Add event listener for checking the map is the right size
+    this.resizeListener = () => this.map?.resize();
+    document.body.addEventListener("transitionend", this.resizeListener);
+  }
+
+  beforeDestroy() {
+    if (this.resizeListener) {
+      window.removeEventListener("hashchange", this.resizeListener);
+    }
   }
 }
 </script>
@@ -278,9 +310,19 @@ export default class Map extends Vue {
 }
 #map {
   flex: 1;
+  z-index: 0;
 }
 
 .mapboxgl-canvas {
   cursor: pointer;
+}
+
+#map .arrow {
+  width: 3em;
+}
+#map .triangle {
+  fill: #f00;
+  stroke: white;
+  stroke-width: 20;
 }
 </style>

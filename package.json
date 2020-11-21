@@ -4,12 +4,15 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build && zip -r dist.zip dist",
-    "deploy": "scp dist.zip ubes:walks && ssh ubes 'walks/deploy.sh'",
+    "build": "vue-cli-service build && tar -czf dist.tar.gz dist",
+    "deploy": "scp deploy.sh dist.tar.gz ubes:walks && ssh ubes 'walks/deploy.sh'",
+    "build-deploy": "yarn build && yarn deploy",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "@mapbox/polyline": "^1.1.1",
+    "@turf/along": "^6.0.1",
+    "@turf/turf": "^5.1.6",
     "core-js": "^3.6.5",
     "geojson": "^0.5.0",
     "mapbox-gl": "^1.12.0",

@@ -1,3 +1,6 @@
+import polyline from "@mapbox/polyline";
+import * as turf from "@turf/turf";
+
 import { routesFile } from "@/config";
 
 export interface RawWalk {
@@ -18,6 +21,12 @@ function getAscent(heights: number[]): number {
     ({ prev, ascent }, next) => ({ prev: next, ascent: ascent + Math.max(0, next - prev) }),
     { prev: +Infinity, ascent: 0 },
   ).ascent;
+}
+
+export interface PointOnLine {
+  lat: number;
+  long: number;
+  bearing: number;
 }
 
 export default class Walk {
@@ -106,5 +115,33 @@ export default class Walk {
           stroke-linejoin="round"
           fill="transparent" />
       </svg>`;
+  }
+
+  /**
+   * Get the position and direction at a certain proportion of the way through the route
+   *
+   * @param {number} proportion a number between 0 and 1, where 0 is the start and 1 is the end
+   * @memberof Walk
+   */
+  getOffset(proportion: number): PointOnLine {
+    const distanceAlong = proportion * this.distance;
+    // Prev and Next are [lat, lng] pairs, but turf accepts [long, lat].
+    const line = polyline.decode(this.polyline).map(([lat, lng]) => [lng, lat]);
+
+    let travelled = 0;
+    for (let i = 0; ; i += 1) {
+      if (travelled >= distanceAlong || i + 1 >= line.length) {
+        const overshot = travelled - distanceAlong;
+
+        const bearing = i === 0
+          ? turf.bearing(line[0], line[1])
+          : turf.bearing(line[i - 1], line[i]);
+        const [long, lat] = overshot > 0
+          ? turf.destination(line[i], -overshot, bearing).geometry?.coordinates ?? line[i]
+          : line[i];
+        return { lat, long, bearing };
+      }
+      travelled += turf.distance(line[i], line[i + 1]);
+    }
   }
 }
