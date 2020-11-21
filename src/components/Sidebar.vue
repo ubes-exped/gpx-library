@@ -30,6 +30,11 @@
           <p>
             Created by <cite>{{ walk.author }}</cite>
           </p>
+          <div class="tags">
+            <span class="tag" v-for="tag of walk.tags" :key="tag">{{
+              tag
+            }}</span>
+          </div>
           <p>{{ walk.description }}</p>
           <p class="download">
             <a :href="walk.href" download>Download GPX</a>
@@ -140,6 +145,18 @@ export default class Sidebar extends Vue {
       h2,
       p {
         margin: 0.25em 0;
+      }
+
+      .tags {
+        .tag {
+          display: inline-block;
+          margin: 0.1em;
+          padding: 0.1em 0.2em;
+          border-radius: 0.3em;
+          border: 1px solid gray;
+          font-size: 0.9em;
+          background-color: var(--background-slight);
+        }
       }
 
       .download {
