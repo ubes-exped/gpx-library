@@ -294,7 +294,6 @@ $sidebar-width: 25em;
       margin-left: $sidebar-overlap-fallback;
       margin-left: $sidebar-overlap;
       margin-right: 0;
-      /* padding-left: calc(#{$sidebar-width} - #{$max-sidebar-width}); */
 
       > ul {
         margin-left: -5em;

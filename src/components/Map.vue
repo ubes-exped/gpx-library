@@ -57,7 +57,7 @@ const layers = {
   lines: {
     source: "lines",
     color: "#00F",
-    opacity: fromZoom([5, 0.75], [10, 0.35]),
+    opacity: fromZoom([5, 0.75], [10, 0.55]),
     width: fromZoom([5, 1], [17, 4], [22, 8])
   },
   selected: {
