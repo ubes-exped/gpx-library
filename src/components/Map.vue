@@ -120,7 +120,7 @@ export default class Map extends Vue {
   token =
     "pk.eyJ1IjoiY2hhcmRpbmciLCJhIjoiY2tocjJpcW5wMGYyOTJydDBicTZvam8xcCJ9.ZJfnHJE_5dJNCsEsQCrwJw";
 
-  mapStyle = "mapbox://styles/charding/ckbfof39h4b2t1ildduhwlm15";
+  mapStyle = "mapbox://styles/charding/ckhr4mjb11o5n19ke1n26cv1c";
 
   map?: mapboxgl.Map = undefined;
 
