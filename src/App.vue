@@ -45,7 +45,7 @@ body {
   background-color: var(--background);
 }
 
-@media screen and (min-width: 800px) {
+@media screen and (min-width: 900px) {
   :root {
     font-size: 16px;
   }

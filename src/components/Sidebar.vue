@@ -14,6 +14,7 @@
       </div>
       <a href="https://ubes.co.uk"><img class="logo" src="/ubes-logo.svg"/></a>
     </div>
+    <div class="minimised-message"><p>Back to the list</p></div>
     <ul>
       <li
         v-for="walk of sortedWalks"
@@ -189,6 +190,7 @@ $sidebar-width: 25em;
     overflow-y: auto;
     margin: 0;
     padding: 0;
+    background-color: var(--background);
     transition: margin 0.5s;
 
     > .walk {
@@ -254,6 +256,18 @@ $sidebar-width: 25em;
 
 .overlay {
   display: none;
+  cursor: pointer;
+}
+
+.minimised-message {
+  height: 0;
+  overflow: visible;
+  width: 5em;
+  margin-left: auto;
+
+  p {
+    margin: 1em;
+  }
 }
 
 @media screen and (max-width: 50rem) {
