@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build && tar -czf dist.tar.gz dist",
     "deploy": "scp deploy.sh dist.tar.gz ubes:walks && ssh ubes 'walks/deploy.sh'",
+    "build-deploy": "yarn build && yarn deploy",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
