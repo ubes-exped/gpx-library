@@ -3,12 +3,22 @@
     <div class="top-box">
       <div class="controls">
         <p class="sort">
-          Sort by:
+          Sort:
           <select v-model="sortType">
             <option value="+distance">Most distance</option>
             <option value="-distance">Least distance</option>
             <option value="+ascent">Most ascent</option>
             <option value="-ascent">Least ascent</option>
+          </select>
+        </p>
+        <p class="sort">
+          Filter:
+          <select v-model="tagFilter">
+            <option value="">Show all</option>
+            <option disabled></option>
+            <option v-for="tag in allTags" :key="tag" :value="tag">
+              {{ tag }}
+            </option>
           </select>
         </p>
       </div>
@@ -19,7 +29,7 @@
     <div class="minimised-message"><p>Back to the list</p></div>
     <ul>
       <li
-        v-for="walk of sortedWalks"
+        v-for="walk of filteredWalks"
         :key="walk.index"
         :class="['walk', { selected: walk.index === selected }]"
         @click="click(walk.index, $event)"
@@ -39,12 +49,17 @@
           <p>
             Created by <cite>{{ walk.author }}</cite>
           </p>
-          <div class="tags">
-            <span class="tag" v-for="tag of walk.tags" :key="tag">{{
-              tag
-            }}</span>
-          </div>
           <p>{{ walk.description }}</p>
+          <div class="tags">
+            <span
+              class="tag"
+              v-for="tag of walk.tags"
+              :key="tag"
+              @click="tagFilter = tag"
+            >
+              {{ tag }}
+            </span>
+          </div>
           <p class="download">
             <a :href="walk.href" download>Download GPX</a>
           </p>
@@ -122,9 +137,10 @@ export default class Sidebar extends Vue {
 
   @PropSync("selected", { default: () => null }) modelSelected!: number | null;
 
-  localSelected?: number | null = this.modelSelected;
+  localSelected: number | null = this.modelSelected;
 
   sortType = "-distance";
+  tagFilter = "";
 
   minimised = false;
 
@@ -134,7 +150,8 @@ export default class Sidebar extends Vue {
   }
 
   @Emit("update:selected")
-  select(id: number) {
+  select(id: number | null) {
+    this.localSelected = id;
     return id;
   }
 
@@ -143,10 +160,34 @@ export default class Sidebar extends Vue {
     return this.modelSelected;
   }
 
-  get sortedWalks() {
+  get sortedWalks(): Walk[] {
     const direction = this.sortType[0] === "-" ? 1 : -1;
     const field = this.sortType.slice(1) as KeysByType<Walk, number>;
     return this.walks.sort((a, b) => direction * (a[field] - b[field]));
+  }
+
+  get filteredWalks(): Walk[] {
+    if (!this.tagFilter) return this.sortedWalks;
+    let foundSelected = false;
+    const filtered = this.sortedWalks.filter(walk =>
+      walk.tags?.includes(this.tagFilter)
+    );
+    if (
+      this.modelSelected &&
+      !filtered.find(walk => walk.index === this.modelSelected)
+    ) {
+      this.select(null);
+    }
+    return filtered;
+  }
+
+  /**
+   * Get all the tags, sorted in alphabetical order
+   */
+  get allTags() {
+    return Array.from(
+      new Set(this.walks.flatMap(walk => walk.tags ?? []))
+    ).sort((a, b) => a.localeCompare(b));
   }
 
   @Watch("selected") async onSelected(selected: number | null) {
@@ -229,6 +270,7 @@ $sidebar-width: 25em;
           border: 1px solid gray;
           font-size: 0.9em;
           background-color: var(--background-slight);
+          cursor: pointer;
         }
       }
 
