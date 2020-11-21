@@ -1,3 +1,5 @@
+import { routesFile } from '@/config';
+
 export interface RawWalk {
   description?: string;
   name?: string;
@@ -62,5 +64,9 @@ export default class Walk {
   get ascent(): number {
     this.#ascent ??= getAscent(this.heights);
     return this.#ascent;
+  }
+
+  get href(): string {
+    return new URL(`/${this.filename}`, routesFile).href;
   }
 }

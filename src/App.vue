@@ -3,7 +3,8 @@
     <div id="nav">
       <router-link to="/">
         Home
-      </router-link> |
+      </router-link>
+      |
       <router-link to="/map">
         Map
       </router-link>
@@ -13,10 +14,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import Component from 'vue-class-component';
-import Walk, { RawWalk } from '@/interfaces/Walk';
-import appName from './appName';
+import Vue from "vue";
+import Component from "vue-class-component";
+import Walk, { RawWalk } from "@/interfaces/Walk";
+import { appName } from "./config";
 
 @Component
 export default class Home extends Vue {
@@ -25,9 +26,11 @@ export default class Home extends Vue {
   walks: Walk[] = [];
 
   async created() {
-    const walksResponse = await fetch('https://routes.ubes.co.uk/generated/data.json');
+    const walksResponse = await fetch(
+      "https://routes.ubes.co.uk/generated/data.json"
+    );
     const rawWalks: RawWalk[] = await walksResponse.json();
-    this.walks = rawWalks.map((walk) => new Walk(walk));
+    this.walks = rawWalks.map(walk => new Walk(walk));
   }
 }
 </script>

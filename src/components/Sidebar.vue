@@ -5,14 +5,23 @@
         v-for="walk of walks"
         :key="walk.index"
         :class="{ selected: walk.index === selected }"
+        @click="click(walk.index, $event)"
+        @dblclick="forceSelect()"
       >
         <h2>{{ walk.name }}</h2>
-        <h4>
+        <p class="stats">
           ↔︎ {{ walk.distance.toFixed(1) }} km, ↗︎
           {{ walk.ascent.toFixed(0) }} m
-        </h4>
-        <cite>{{ walk.author }}</cite>
-        <p>{{ walk.description }}</p>
+        </p>
+        <div class="details">
+          <p>
+            <cite>{{ walk.author }}</cite>
+          </p>
+          <p>{{ walk.description }}</p>
+          <p class="download">
+            <a :href="walk.href" download>Download GPX</a>
+          </p>
+        </div>
       </li>
     </ul>
   </div>
@@ -20,27 +29,44 @@
 
 <script lang="ts">
 import {
-  Component, Vue, PropSync, Prop, Watch,
-} from 'vue-property-decorator';
-import Walk from '@/interfaces/Walk';
+  Component,
+  Vue,
+  PropSync,
+  Prop,
+  Watch,
+  Emit
+} from "vue-property-decorator";
+import Walk from "@/interfaces/Walk";
 
 @Component
 export default class Sidebar extends Vue {
   @Prop({ default: () => [] }) walks!: Walk[];
 
-  @PropSync('selected', { default: () => null }) modelSelected!: number | null;
+  @PropSync("selected", { default: () => null }) modelSelected!: number | null;
 
   localSelected?: number | null = this.modelSelected;
 
-  select(id: number | null, e: MouseEvent) {
+  click(id: number, e: MouseEvent) {
     if (e.detail > 1) return;
-    this.localSelected = id;
-    this.modelSelected = id;
+    this.select(id);
   }
 
-  @Watch('selected') async onSelected(selected: null | undefined) {
+  @Emit("update:selected")
+  select(id: number) {
+    return id;
+  }
+
+  @Emit("zoom-to-selected")
+  forceSelect() {
+    return this.modelSelected;
+  }
+
+  @Watch("selected") async onSelected(selected: number) {
     if (selected !== this.localSelected) {
       this.localSelected = selected;
+      await this.$nextTick();
+      const el = this.$el.querySelector(".selected");
+      if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
   }
 }
@@ -67,9 +93,34 @@ export default class Sidebar extends Vue {
       padding: 1em;
       border-radius: 0.5em;
       background-color: var(--background-slight);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+
+      .details {
+        display: none;
+      }
 
       &.selected {
         background-color: var(--background-strong);
+        cursor: unset;
+
+        .details {
+          display: unset;
+        }
+      }
+
+      h2,
+      p {
+        margin: 0.25em 0;
+      }
+
+      .download {
+        text-align: right;
+
+        a {
+          color: var(--color) !important;
+        }
       }
     }
   }
