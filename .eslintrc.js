@@ -26,7 +26,7 @@ module.exports = {
     'no-unused-expressions': 'off',
     'babel/no-unused-expressions': 'error',
     semi: 'off',
-    quotes: 'double',
+    quotes: [1, 'double'],
     '@typescript-eslint/semi': 'error',
     '@typescript-eslint/type-annotation-spacing': 'error',
     'class-methods-use-this': 'off',

@@ -1,11 +1,12 @@
-import { routesFile } from '@/config';
+import { routesFile } from "@/config";
 
 export interface RawWalk {
-  description?: string;
+  id: string;
+  filename: string;
   name?: string;
+  description?: string;
   author?: string;
   tags?: string[];
-  filename: string;
 
   heights: number[];
   length: number;
@@ -20,11 +21,13 @@ function getAscent(heights: number[]): number {
 }
 
 export default class Walk {
-  readonly description?: string;
+  readonly id: string;
+
+  readonly filename: string;
 
   readonly name?: string;
 
-  readonly filename: string;
+  readonly description?: string;
 
   readonly author?: string;
 
@@ -36,15 +39,18 @@ export default class Walk {
 
   readonly polyline: string;
 
+  /** Needed because Mapbox can only deal with numeric IDs */
   readonly index: number;
 
   private static counter = 0;
 
   constructor(walk: RawWalk) {
-    this.description = walk.description;
-    this.name = walk.name;
+    this.id = walk.id;
     this.filename = walk.filename;
+    this.name = walk.name;
+    this.description = walk.description;
     this.author = walk.author;
+    this.tags = walk.tags;
     this.heights = walk.heights;
     this.length = walk.length;
     this.polyline = walk.polyline;
