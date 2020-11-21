@@ -100,9 +100,6 @@ export default class Map extends Vue {
   @PropSync("selected", { default: () => null })
   modelSelected!: number | null;
 
-  @PropSync("improvedHillshade", { default: true })
-  modelImprovedHillshade!: boolean;
-
   @PropSync("walks", { default: () => [] }) modelWalks!: Walk[];
 
   @Ref() container!: HTMLDivElement;
@@ -127,22 +124,6 @@ export default class Map extends Vue {
   @Watch("mapStyle") onMapStyle(style: string) {
     this.map?.setStyle(style);
   }
-
-  @Watch("modelImprovedHillshade") onImprovedHillshade(
-    improvedHillshade: boolean
-  ) {
-    this.map?.setLayoutProperty(
-      "improved-hillshading",
-      "visibility",
-      improvedHillshade ? "visible" : "none"
-    );
-    this.map?.setLayoutProperty(
-      "hillshade-greys",
-      "visibility",
-      !improvedHillshade ? "visible" : "none"
-    );
-  }
-
   mapLoaded(map: mapboxgl.Map) {
     map.resize();
 
@@ -151,8 +132,6 @@ export default class Map extends Vue {
     Object.entries(layers).forEach(([id, layer]) =>
       map.addLayer(buildLineLayer(id, layer))
     );
-
-    this.onImprovedHillshade(this.modelImprovedHillshade);
 
     this.applyProps();
   }

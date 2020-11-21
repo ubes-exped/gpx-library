@@ -719,10 +719,8 @@
             "metadata": {},
             "source": "composite",
             "source-layer": "hillshade",
-            "maxzoom": 16,
-            "layout": {
-                "visibility": "none"
-            },
+            "maxzoom": 0,
+            "layout": {},
             "paint": {
                 "fill-color": [
                     "match",
