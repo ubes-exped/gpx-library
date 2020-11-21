@@ -33,7 +33,7 @@ export default class Home extends Vue {
 
 <style>
 :root {
-  font-size: 14px;
+  font-size: 12px;
   transition: font-size 0.5s;
 }
 
@@ -45,7 +45,13 @@ body {
   background-color: var(--background);
 }
 
-@media screen and (min-width: 900px) {
+@media screen and (min-width: 800px) {
+  :root {
+    font-size: 14px;
+  }
+}
+
+@media screen and (min-width: 1000px) {
   :root {
     font-size: 16px;
   }

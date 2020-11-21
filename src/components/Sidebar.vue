@@ -272,7 +272,7 @@ $sidebar-width: 25em;
   }
 }
 
-@media screen and (max-width: 50rem) {
+@media screen and (max-width: 600px) {
   .overlay {
     display: block;
     position: absolute;
