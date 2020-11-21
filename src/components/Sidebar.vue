@@ -1,18 +1,20 @@
 <template>
   <div class="sidebar">
-    <div class="logo-box">
+    <div class="top-box">
+      <ol class="controls">
+        <li class="sort">
+          Sort by:
+          <select v-model="sortType">
+            <option value="+distance">Most distance</option>
+            <option value="-distance">Least distance</option>
+            <option value="+ascent">Most ascent</option>
+            <option value="-ascent">Least ascent</option>
+          </select>
+        </li>
+      </ol>
       <a href="https://ubes.co.uk"><img src="/ubes-logo.svg"/></a>
     </div>
     <ul>
-      <li class="sort-control">
-        Sort by:
-        <select v-model="sortType">
-          <option value="+distance">Most distance</option>
-          <option value="-distance">Least distance</option>
-          <option value="+ascent">Most ascent</option>
-          <option value="-ascent">Least ascent</option>
-        </select>
-      </li>
       <li
         v-for="walk of sortedWalks"
         :key="walk.index"
@@ -165,7 +167,7 @@ export default class Sidebar extends Vue {
 
 <style lang="scss">
 .sidebar {
-  flex: 0 20em;
+  flex: 0 25em;
   display: flex;
   flex-direction: column;
   color: var(--color);
@@ -176,12 +178,6 @@ export default class Sidebar extends Vue {
     overflow-y: auto;
     margin: 0;
     padding: 0;
-
-    > .sort-control {
-      padding: 0 1em;
-      text-align: center;
-      list-style: none;
-    }
 
     > .walk {
       list-style: none;
@@ -214,19 +210,32 @@ export default class Sidebar extends Vue {
   }
 }
 
-.logo-box {
-  text-align: center;
-  padding: 1em;
+.top-box {
+  padding: 2vh 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-height: 10vh;
 
   // Prevent Sass complaining about invert
   @function invert($options...) {
     @return #{"invert(#{$options})"};
   }
 
+  a {
+    display:contents;
+  }
+
   img {
-    max-height: 20vh;
-    height: 10em;
     filter: invert(var(--invert));
+    align-self:stretch;
+  }
+
+  > .controls {
+    padding: 0 0;
+    line-height: 5vh;
+    text-align: left;
+    list-style: none;
   }
 }
 </style>
