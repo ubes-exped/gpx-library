@@ -12,7 +12,9 @@
           </select>
         </p>
       </div>
-      <a href="https://ubes.co.uk"><img class="logo" src="/ubes-logo.svg"/></a>
+      <a href="https://ubes.co.uk" target="_blank">
+        <img class="logo" src="/ubes-logo.svg" />
+      </a>
     </div>
     <div class="minimised-message"><p>Back to the list</p></div>
     <ul>
