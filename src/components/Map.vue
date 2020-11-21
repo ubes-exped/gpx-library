@@ -83,7 +83,9 @@ const buildLineLayer = (id: string, layer: LayerDef): mapboxgl.Layer => ({
 
 const makeMarker = () => {
   const wrapper = document.createElement("div");
-  wrapper.innerHTML = '<div class="arrowhead"><div class="arrow"></div></div>';
+  wrapper.innerHTML = `<svg class="arrow" viewBox="0 0 500 800">
+		  <polygon points="100,400 400,400 250,100" class="triangle" />
+	  </svg>`;
   return wrapper;
 };
 
@@ -153,10 +155,10 @@ export default class Map extends Vue {
       this.hoveredMarker.remove();
     } else {
       this.hoveredMarker.setLngLat([point.long, point.lat]);
-      const arrowhead = this.hoveredMarker
+      const arrow = this.hoveredMarker
         .getElement()
-        .querySelector(".arrowhead") as HTMLElement;
-      arrowhead.style.transform = `rotate(${point.bearing}deg)`;
+        .querySelector(".arrow") as HTMLElement;
+      arrow.style.transform = `rotate(${point.bearing}deg)`;
       if (this.map) this.hoveredMarker.addTo(this.map);
     }
   }
@@ -310,16 +312,12 @@ export default class Map extends Vue {
   cursor: pointer;
 }
 
-#map .arrowhead {
-  font-size: 0.8em;
-  padding-bottom: 2em;
-}
 #map .arrow {
-  width: 0;
-  height: 0;
-  border-left: 1em solid transparent;
-  border-right: 1em solid transparent;
-
-  border-bottom: 2em solid #f00;
+  width: 3em;
+}
+#map .triangle {
+  fill: #f00;
+  stroke: white;
+  stroke-width: 20;
 }
 </style>
