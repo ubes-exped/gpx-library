@@ -1,11 +1,22 @@
 <template>
   <div class="sidebar">
-    <div class="logo-box">UBES!</div>
+    <div class="logo-box">
+      <a href="https://ubes.co.uk"><img src="/ubes-logo.svg"/></a>
+    </div>
     <ul>
+      <li class="sort-control">
+        Sort by:
+        <select v-model="sortType">
+          <option value="+distance">Most distance</option>
+          <option value="-distance">Least distance</option>
+          <option value="+ascent">Most ascent</option>
+          <option value="-ascent">Least ascent</option>
+        </select>
+      </li>
       <li
-        v-for="walk of walks"
+        v-for="walk of sortedWalks"
         :key="walk.index"
-        :class="{ selected: walk.index === selected }"
+        :class="['walk', { selected: walk.index === selected }]"
         @click="click(walk.index, $event)"
         @dblclick="forceSelect()"
       >
@@ -39,6 +50,15 @@ import {
 } from "vue-property-decorator";
 import Walk from "@/interfaces/Walk";
 
+// Find only the keys of an object with a given value type
+// source: https://medium.com/dailyjs/typescript-create-a-condition-based-subset-types-9d902cea5b8c
+type KeysByType<Object, ValueType> = Exclude<
+  {
+    [Key in keyof Object]: Object[Key] extends ValueType ? Key : never;
+  }[keyof Object],
+  undefined
+>;
+
 @Component
 export default class Sidebar extends Vue {
   @Prop({ default: () => [] }) walks!: Walk[];
@@ -46,6 +66,8 @@ export default class Sidebar extends Vue {
   @PropSync("selected", { default: () => null }) modelSelected!: number | null;
 
   localSelected?: number | null = this.modelSelected;
+
+  sortType = "-distance";
 
   click(id: number, e: MouseEvent) {
     if (e.detail > 1) return;
@@ -60,6 +82,12 @@ export default class Sidebar extends Vue {
   @Emit("zoom-to-selected")
   forceSelect() {
     return this.modelSelected;
+  }
+
+  get sortedWalks() {
+    const direction = this.sortType[0] === "-" ? 1 : -1;
+    const field = this.sortType.slice(1) as KeysByType<Walk, number>;
+    return this.walks.sort((a, b) => direction * (a[field] - b[field]));
   }
 
   @Watch("selected") async onSelected(selected: number) {
@@ -87,7 +115,13 @@ export default class Sidebar extends Vue {
     margin: 0;
     padding: 0;
 
-    > li {
+    > .sort-control {
+      padding: 0 1em;
+      text-align: center;
+      list-style: none;
+    }
+
+    > .walk {
       list-style: none;
       margin: 1em;
       padding: 1em;
@@ -123,6 +157,22 @@ export default class Sidebar extends Vue {
         }
       }
     }
+  }
+}
+
+.logo-box {
+  text-align: center;
+  padding: 1em;
+
+  // Prevent Sass complaining about invert
+  @function invert($options...) {
+    @return #{"invert(#{$options})"};
+  }
+
+  img {
+    max-height: 20vh;
+    height: 10em;
+    filter: invert(var(--invert));
   }
 }
 </style>

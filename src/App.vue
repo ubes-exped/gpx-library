@@ -71,6 +71,7 @@ body {
   --background: #fff;
   --background-slight: #eee;
   --background-strong: #ccc;
+  --invert: 0%;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -79,6 +80,7 @@ body {
     --background: #222;
     --background-slight: #333;
     --background-strong: #555;
+    --invert: 100%;
   }
 }
 </style>
