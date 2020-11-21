@@ -32,11 +32,28 @@ export default class Home extends Vue {
 </script>
 
 <style>
+:root {
+  font-size: 14px;
+  transition: font-size 0.5s;
+}
+
 html,
 body {
   height: 100%;
   overflow: hidden;
   margin: 0;
+}
+
+@media screen and (min-width: 800px) {
+  :root {
+    font-size: 16px;
+  }
+}
+
+@media screen and (min-width: 1500px) {
+  :root {
+    font-size: 18px;
+  }
 }
 
 #app {

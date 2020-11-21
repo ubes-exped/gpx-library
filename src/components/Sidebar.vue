@@ -1,8 +1,8 @@
 <template>
-  <div class="sidebar">
+  <div class="sidebar" :class="{ minimised }">
     <div class="top-box">
-      <ol class="controls">
-        <li class="sort">
+      <div class="controls">
+        <p class="sort">
           Sort by:
           <select v-model="sortType">
             <option value="+distance">Most distance</option>
@@ -10,9 +10,9 @@
             <option value="+ascent">Most ascent</option>
             <option value="-ascent">Least ascent</option>
           </select>
-        </li>
-      </ol>
-      <a href="https://ubes.co.uk"><img src="/ubes-logo.svg"/></a>
+        </p>
+      </div>
+      <a href="https://ubes.co.uk"><img class="logo" src="/ubes-logo.svg"/></a>
     </div>
     <ul>
       <li
@@ -22,7 +22,7 @@
         @click="click(walk.index, $event)"
         @dblclick="forceSelect()"
       >
-        <h2>{{ walk.name }}</h2>
+        <h3>{{ walk.name }}</h3>
         <p class="stats">
           ↔︎ {{ walk.distance.toFixed(1) }} km, ↗︎
           {{ walk.ascent.toFixed(0) }} m
@@ -43,6 +43,7 @@
         </div>
       </li>
     </ul>
+    <div class="overlay" @click="minimised = !minimised" />
   </div>
 </template>
 
@@ -117,6 +118,8 @@ export default class Sidebar extends Vue {
 
   sortType = "-distance";
 
+  minimised = false;
+
   click(id: number, e: MouseEvent) {
     if (e.detail > 1) return;
     this.select(id);
@@ -138,9 +141,10 @@ export default class Sidebar extends Vue {
     return this.walks.sort((a, b) => direction * (a[field] - b[field]));
   }
 
-  @Watch("selected") async onSelected(selected: number) {
+  @Watch("selected") async onSelected(selected: number | null) {
     if (selected !== this.localSelected) {
       this.localSelected = selected;
+      if (selected) this.minimised = false;
       await this.$nextTick();
       const el = this.$el.querySelector(".selected");
       if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
@@ -166,18 +170,26 @@ export default class Sidebar extends Vue {
 </script>
 
 <style lang="scss">
+$max-sidebar-width: 80vw;
+$sidebar-width: 25em;
+
 .sidebar {
-  flex: 0 25em;
+  flex: 0 $sidebar-width;
+  max-width: $max-sidebar-width;
   display: flex;
   flex-direction: column;
   color: var(--color);
   background-color: var(--background);
+  transition: margin 0.5s;
+  z-index: 1;
+  position: relative;
 
   > ul {
     flex: 1;
     overflow-y: auto;
     margin: 0;
     padding: 0;
+    transition: margin 0.5s;
 
     > .walk {
       list-style: none;
@@ -194,7 +206,7 @@ export default class Sidebar extends Vue {
         cursor: unset;
       }
 
-      h2,
+      h3,
       p {
         margin: 0.25em 0;
       }
@@ -226,16 +238,58 @@ export default class Sidebar extends Vue {
     display: contents;
   }
 
-  img {
+  .logo {
     filter: invert(var(--invert));
     align-self: stretch;
+    max-width: 23em;
+    transition: max-width 0.5s;
   }
 
   > .controls {
     padding: 0 0;
     line-height: 5vh;
     text-align: left;
-    list-style: none;
+  }
+}
+
+.overlay {
+  display: none;
+}
+
+@media screen and (max-width: 50rem) {
+  .overlay {
+    display: block;
+    position: absolute;
+    z-index: 2;
+    left: 100%;
+    top: 0;
+    bottom: 0;
+    width: 100vw;
+  }
+
+  .sidebar {
+    margin-right: -20em;
+    margin-right: calc(5em - min(#{$sidebar-width}, #{$max-sidebar-width}));
+
+    &.minimised {
+      margin-left: -20em;
+      margin-right: 0;
+      padding-left: calc($sidebar-width - $max-sidebar-width);
+
+      > ul {
+        margin-left: -5em;
+        margin-right: 5em;
+      }
+
+      .top-box .logo {
+        max-width: 3em;
+      }
+
+      .overlay {
+        right: 0;
+        left: unset;
+      }
+    }
   }
 }
 </style>

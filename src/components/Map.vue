@@ -260,6 +260,8 @@ export default class Map extends Vue {
     }
   }
 
+  resizeListener?: () => void;
+
   mounted() {
     let map: mapboxgl.Map;
     const cachedMap = window.cachedMapComponent?.map;
@@ -288,6 +290,16 @@ export default class Map extends Vue {
 
     // Apply provided props
     this.applyProps();
+
+    // Add event listener for checking the map is the right size
+    this.resizeListener = () => this.map?.resize();
+    document.body.addEventListener("transitionend", this.resizeListener);
+  }
+
+  beforeDestroy() {
+    if (this.resizeListener) {
+      window.removeEventListener("hashchange", this.resizeListener);
+    }
   }
 }
 </script>
@@ -298,6 +310,7 @@ export default class Map extends Vue {
 }
 #map {
   flex: 1;
+  z-index: 0;
 }
 
 .mapboxgl-canvas {
