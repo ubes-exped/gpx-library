@@ -18,6 +18,7 @@ import GeoJSON from "geojson";
 import * as mapboxgl from "mapbox-gl";
 import polyline from "@mapbox/polyline";
 import Walk, { PointOnLine } from "@/interfaces/Walk";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 declare global {
   interface Window {
@@ -89,16 +90,7 @@ const makeMarker = () => {
   return wrapper;
 };
 
-@Component({
-  head: {
-    link: [
-      {
-        href: "https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.css",
-        rel: "stylesheet"
-      }
-    ]
-  }
-})
+@Component
 export default class Map extends Vue {
   isFirstMap: boolean = !window.cachedMapComponent;
 
