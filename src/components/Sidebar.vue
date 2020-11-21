@@ -274,7 +274,7 @@ $sidebar-width: 25em;
     &.minimised {
       margin-left: -20em;
       margin-right: 0;
-      padding-left: calc($sidebar-width - $max-sidebar-width);
+      padding-left: calc(#{$sidebar-width} - #{$max-sidebar-width});
 
       > ul {
         margin-left: -5em;
