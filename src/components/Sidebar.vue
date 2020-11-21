@@ -211,7 +211,7 @@ export default class Sidebar extends Vue {
 }
 
 .top-box {
-  padding: 2vh 0;
+  padding: 2vh 1em;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -223,12 +223,12 @@ export default class Sidebar extends Vue {
   }
 
   a {
-    display:contents;
+    display: contents;
   }
 
   img {
     filter: invert(var(--invert));
-    align-self:stretch;
+    align-self: stretch;
   }
 
   > .controls {
