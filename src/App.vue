@@ -42,6 +42,7 @@ body {
   height: 100%;
   overflow: hidden;
   margin: 0;
+  background-color: var(--background);
 }
 
 @media screen and (min-width: 800px) {
