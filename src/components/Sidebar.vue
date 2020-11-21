@@ -1,5 +1,6 @@
 <template>
   <div class="sidebar">
+    <div class="logo-box">UBES!</div>
     <ul>
       <li
         v-for="walk of walks"
@@ -15,7 +16,7 @@
         </p>
         <div class="details">
           <p>
-            <cite>{{ walk.author }}</cite>
+            Created by <cite>{{ walk.author }}</cite>
           </p>
           <p>{{ walk.description }}</p>
           <p class="download">
@@ -79,11 +80,10 @@ export default class Sidebar extends Vue {
   flex-direction: column;
   color: var(--color);
   background-color: var(--background);
-  overflow-y: auto;
 
   > ul {
     flex: 1;
-    overflow: auto;
+    overflow-y: auto;
     margin: 0;
     padding: 0;
 

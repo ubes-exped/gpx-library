@@ -1,24 +1,20 @@
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
 import { appName } from '@/config';
-import Home from '@/views/Home.vue';
 
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
-    path: '/',
+    path: '/about',
     name: 'Home',
-    component: Home,
+    component: () => import(/* webpackChunkName: "home" */ '@/views/Home.vue'),
   },
   {
-    path: '/map',
+    path: '/',
     name: 'MapView',
     meta: { title: 'Map View' },
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '@/views/MapView.vue'),
+    component: () => import(/* webpackChunkName: "map" */ '@/views/MapView.vue'),
   },
 ];
 
