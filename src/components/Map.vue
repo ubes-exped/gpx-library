@@ -118,7 +118,7 @@ export default class Map extends Vue {
   }
 
   token =
-    "pk.eyJ1IjoiY2hhcmRpbmciLCJhIjoiY2tiYWp0cndkMDc0ZjJybXhlcHdoM2Z3biJ9.XUwOLV17ZBXE8dhp198dqg";
+    "pk.eyJ1IjoiY2hhcmRpbmciLCJhIjoiY2tocjJpcW5wMGYyOTJydDBicTZvam8xcCJ9.ZJfnHJE_5dJNCsEsQCrwJw";
 
   mapStyle = "mapbox://styles/charding/ckbfof39h4b2t1ildduhwlm15";
 
