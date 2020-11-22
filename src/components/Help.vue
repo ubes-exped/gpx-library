@@ -37,6 +37,7 @@
         <h2 class="legal" @click="scrollToBottom" ref="legalHeader">
           Legal notice
         </h2>
+        <p>Publisher:</p>
         <p>
           <b>University of Bristol Expeditions Society</b>,<br />
           Bristol SU, Richmond Building,<br />
