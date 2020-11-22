@@ -124,5 +124,14 @@ export default class Help extends Vue {
     padding-top: 0.16em;
     margin-top: 0.67em;
   }
+
+  @media screen and (max-width: 450px) {
+    margin: 0;
+    width: 100vw;
+    height: 100%;
+    max-height: unset;
+    border-radius: 0;
+    border: none;
+  }
 }
 </style>
