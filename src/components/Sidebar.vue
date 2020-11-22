@@ -16,7 +16,14 @@
         <img class="logo" src="/ubes-logo.svg" />
       </a>
     </div>
-    <div class="minimised-message"><p>Back to the list</p></div>
+    <div class="minimised-message map">
+      <p><Icon>map</Icon></p>
+      <p>Map</p>
+    </div>
+    <div class="minimised-message">
+      <p><Icon>arrow_back</Icon></p>
+      <p>Back</p>
+    </div>
     <ul>
       <li
         v-for="walk of sortedWalks"
@@ -41,12 +48,20 @@
           </p>
           <p>{{ walk.description }}</p>
           <p class="download">
-            <a :href="walk.href" download>Download GPX</a>
+            <a :href="walk.href" download>
+              GPX
+              <icon inline>text_snippet</icon>
+            </a>
           </p>
         </div>
       </li>
     </ul>
-    <div class="overlay" @click="minimised = !minimised" />
+    <div
+      class="overlay"
+      @mousedown="minimised = !minimised"
+      @wheel="minimised = true"
+      @touchstart="minimised = true"
+    />
   </div>
 </template>
 
@@ -60,6 +75,7 @@ import {
   Emit
 } from "vue-property-decorator";
 import Walk from "@/interfaces/Walk";
+import Icon from "./Icon.vue";
 
 // Find only the keys of an object with a given value type
 // source: https://medium.com/dailyjs/typescript-create-a-condition-based-subset-types-9d902cea5b8c
@@ -111,7 +127,9 @@ function throttle<T extends any[]>(
   return { send, clear };
 }
 
-@Component
+@Component({
+  components: { Icon }
+})
 export default class Sidebar extends Vue {
   @Prop({ default: () => [] }) walks!: Walk[];
 
@@ -183,7 +201,7 @@ $sidebar-width: 25em;
   flex-direction: column;
   color: var(--color);
   background-color: var(--background);
-  transition: margin 0.5s;
+  transition: margin var(--transition-speed);
   z-index: 1;
   position: relative;
 
@@ -193,7 +211,7 @@ $sidebar-width: 25em;
     margin: 0;
     padding: 0;
     background-color: var(--background);
-    transition: margin 0.5s;
+    transition: margin var(--transition-speed);
 
     > .walk {
       list-style: none;
@@ -220,6 +238,7 @@ $sidebar-width: 25em;
 
         a {
           color: var(--color) !important;
+          text-decoration: none;
         }
       }
     }
@@ -246,7 +265,7 @@ $sidebar-width: 25em;
     filter: invert(var(--invert));
     align-self: stretch;
     max-width: $sidebar-width - 2em;
-    transition: max-width 0.5s;
+    transition: max-width var(--transition-speed);
   }
 
   > .controls {
@@ -262,13 +281,23 @@ $sidebar-width: 25em;
 }
 
 .minimised-message {
-  height: 0;
-  overflow: visible;
+  height: 5em;
+  background: var(--background);
   width: 5em;
+  display: flex;
+  margin-bottom: -5em;
+  flex-direction: column;
+  justify-content: space-evenly;
   margin-left: auto;
+  text-align: center;
+  transition: margin var(--transition-speed);
 
   p {
-    margin: 1em;
+    margin: 0 1em;
+  }
+
+  &.map {
+    border-radius: 0 1em 1em 0;
   }
 }
 
@@ -308,6 +337,10 @@ $sidebar-width: 25em;
         right: 0;
         left: unset;
       }
+    }
+
+    &:not(.minimised) .minimised-message.map {
+      margin-right: -5em;
     }
   }
 }

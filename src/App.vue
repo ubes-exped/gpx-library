@@ -33,8 +33,9 @@ export default class Home extends Vue {
 
 <style>
 :root {
+  --transition-speed: 0.5s;
   font-size: 12px;
-  transition: font-size 0.5s;
+  transition: font-size var(--transition-speed);
 }
 
 html,
