@@ -88,7 +88,7 @@ export default class Help extends Vue {
   right: 0;
   bottom: 0;
   z-index: 5;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: var(--overlay-color);
 }
 
 .back {

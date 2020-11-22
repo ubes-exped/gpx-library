@@ -37,6 +37,10 @@ export default class Home extends Vue {
   font-size: 12px;
 }
 
+a {
+  color: var(--link-color);
+}
+
 html,
 body {
   height: 100%;
@@ -93,18 +97,22 @@ body {
 
 :root {
   --color: #222;
+  --link-color: #00e;
   --background: #fff;
   --background-slight: #eee;
   --background-strong: #ccc;
+  --overlay-color: rgba(255, 255, 255, 0.5);
   --invert: 0%;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --color: #fff;
+    --link-color: #8cf;
     --background: #222;
     --background-slight: #333;
     --background-strong: #555;
+    --overlay-color: rgba(0, 0, 0, 0.5);
     --invert: 100%;
   }
 }
