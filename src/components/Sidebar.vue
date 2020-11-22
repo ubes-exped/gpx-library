@@ -311,6 +311,7 @@ $sidebar-width: 25em;
   .logo {
     filter: invert(var(--invert));
     align-self: stretch;
+    max-height: 100%;
     max-width: $sidebar-width - 2em;
     transition: max-width var(--transition-speed);
   }
@@ -331,6 +332,10 @@ $sidebar-width: 25em;
         flex-shrink: 1;
         min-width: 0;
         margin-left: 0.5ex;
+
+        @media (hover: none) {
+          font-size: 16px;
+        }
       }
     }
   }
