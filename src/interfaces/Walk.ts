@@ -1,5 +1,7 @@
 import polyline from "@mapbox/polyline";
-import * as turf from "@turf/turf";
+import turfBearing from "@turf/bearing";
+import turfDestination from "@turf/destination";
+import turfDistance from "@turf/distance";
 
 import { routesFile } from "@/config";
 
@@ -134,14 +136,14 @@ export default class Walk {
         const overshot = travelled - distanceAlong;
 
         const bearing = i === 0
-          ? turf.bearing(line[0], line[1])
-          : turf.bearing(line[i - 1], line[i]);
+          ? turfBearing(line[0], line[1])
+          : turfBearing(line[i - 1], line[i]);
         const [long, lat] = overshot > 0
-          ? turf.destination(line[i], -overshot, bearing).geometry?.coordinates ?? line[i]
+          ? turfDestination(line[i], -overshot, bearing).geometry?.coordinates ?? line[i]
           : line[i];
         return { lat, long, bearing };
       }
-      travelled += turf.distance(line[i], line[i + 1]);
+      travelled += turfDistance(line[i], line[i + 1]);
     }
   }
 }
