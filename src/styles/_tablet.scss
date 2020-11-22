@@ -1,0 +1,12 @@
+@mixin colours {
+  border-radius: 0.3em;
+  border: 1px solid gray;
+  background-color: var(--background-slight);
+}
+
+@mixin full {
+  @include colours;
+  display: inline-block;
+  margin: 0.1em;
+  padding: 0.1em 0.2em;
+}

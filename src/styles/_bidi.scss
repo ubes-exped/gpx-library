@@ -1,0 +1,41 @@
+@use 'sass:string';
+@use 'sass:list';
+
+@function -bind-to-element($selectors, $suffix) {
+  $results: list.join((), (), comma);
+
+  @each $selector in $selectors {
+    $length: list.length($selector);
+    $last: list.nth($selector, $length);
+    $position: string.index($last, '::');
+    $position: string.length($last) + 1 !default;
+    $last: string.insert($last, $suffix, $position);
+    $selector: list.set-nth($selector, $length, $last);
+    $results: append($results, $selector);
+  }
+
+  @return "#{$results}";
+}
+
+@mixin property($left, $right, $value) {
+  #{$left}: $value;
+
+  @at-root #{-bind-to-element(&, ':dir(rtl)')} {
+    #{$right}: $value;
+  }
+}
+
+@mixin value($property, $left, $right) {
+  #{$property}: $left;
+
+
+  @at-root #{-bind-to-element(&, ':dir(rtl)')} {
+    #{$property}: $right;
+  }
+}
+
+@mixin border-radius($inline-start, $inline-end) {
+  @include value(border-radius,
+    $inline-start $inline-end $inline-end $inline-start,
+    $inline-end $inline-start $inline-start $inline-end);
+}

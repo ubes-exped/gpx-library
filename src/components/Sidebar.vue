@@ -7,43 +7,25 @@
       <div class="controls">
         <label class="control">
           Sort:
-          <select v-model="sortType">
-            <option value="+distance">Most distance</option>
-            <option value="-distance">Least distance</option>
-            <option value="+ascent">Most ascent</option>
-            <option value="-ascent">Least ascent</option>
-          </select>
+          <Dropdown
+            v-model="sortType"
+            class="select-wrapper"
+            :options="sortOptions"
+          />
         </label>
         <label
           v-if="useTags"
           class="control"
         >
           Filter:
-          <span
-            v-if="tagFilter"
-            class="tag"
-          >
-            {{ tagFilter }}
-            <Icon
-              inline
-              large
-              @click="tagFilter = ''"
-            >close</Icon>
-          </span>
-          <select
-            v-else
+          <Dropdown
             v-model="tagFilter"
-          >
-            <option value="">Show all</option>
-            <option disabled />
-            <option
-              v-for="tag in allTags"
-              :key="tag"
-              :value="tag"
-            >
-              {{ tag }}
-            </option>
-          </select>
+            blank-value=""
+            blank-label="Show all"
+            class="dropdown"
+            :options="allTags.map(tag => ({ value: tag, label: tag }))"
+            clear-button
+          />
         </label>
       </div>
       <a
@@ -146,6 +128,7 @@ import {
 } from "vue-property-decorator";
 import Walk from "@/interfaces/Walk";
 import Icon from "./Icon.vue";
+import Dropdown from "./Dropdown.vue";
 
 // Find only the keys of an object with a given value type
 // source: https://medium.com/dailyjs/typescript-create-a-condition-based-subset-types-9d902cea5b8c
@@ -190,7 +173,8 @@ function throttle<T extends any[]>(
 
   const clear = () => {
     clearTimeout(timeout);
-    timeout = cachedArgs = timeout = undefined;
+    timeout = undefined;
+    cachedArgs = undefined;
     onClear?.();
   };
 
@@ -198,7 +182,7 @@ function throttle<T extends any[]>(
 }
 
 @Component({
-  components: { Icon },
+  components: { Icon, Dropdown },
 })
 export default class Sidebar extends Vue {
   @Prop({ default: () => [] }) walks!: Walk[];
@@ -210,6 +194,13 @@ export default class Sidebar extends Vue {
   localSelected: number | null = this.selected?.index ?? null;
 
   sortType = "-distance";
+
+  sortOptions = [
+    { value: "+distance", label: "Most distance" },
+    { value: "-distance", label: "Least distance" },
+    { value: "+ascent", label: "Most ascent" },
+    { value: "-ascent", label: "Least ascent" },
+  ];
 
   @PropSync("filter", { default: "" }) tagFilter!: string;
 
@@ -261,17 +252,11 @@ export default class Sidebar extends Vue {
 </script>
 
 <style lang="scss">
+@use 'src/styles/tablet';
+@use 'src/styles/bidi';
+
 $max-sidebar-width: 80vw;
 $sidebar-width: 25em;
-
-@mixin tag {
-  display: inline-block;
-  margin: 0.1em;
-  padding: 0.1em 0.2em;
-  border-radius: 0.3em;
-  border: 1px solid gray;
-  background-color: var(--background-slight);
-}
 
 .sidebar {
   flex: 0 $sidebar-width;
@@ -314,13 +299,13 @@ $sidebar-width: 25em;
 
       .tags {
         .tag {
-          @include tag;
+          @include tablet.full;
           cursor: pointer;
         }
       }
 
       .download {
-        text-align: right;
+        text-align: end;
 
         a {
           color: var(--color) !important;
@@ -357,7 +342,6 @@ $sidebar-width: 25em;
 
   > .controls {
     padding: 0;
-    text-align: left;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -367,28 +351,6 @@ $sidebar-width: 25em;
       align-items: center;
       margin: 1ex 0;
       height: 1.5em;
-
-      select {
-        flex-shrink: 1;
-        min-width: 0;
-        margin-left: 1ex;
-
-        @media (hover: none) {
-          font-size: 16px;
-        }
-      }
-
-      .tag {
-        @include tag;
-        margin-left: 1ex;
-        font-size: 0.9em;
-
-        i {
-          margin: -1ex;
-          padding: 1ex;
-          cursor: pointer;
-        }
-      }
     }
   }
 }
@@ -428,7 +390,7 @@ $sidebar-width: 25em;
   margin-bottom: -5em;
   flex-direction: column;
   justify-content: space-evenly;
-  margin-left: auto;
+  margin-inline-start: auto;
   text-align: center;
   transition: margin var(--transition-speed);
 
@@ -437,7 +399,37 @@ $sidebar-width: 25em;
   }
 
   &.map {
-    border-radius: 0 1em 1em 0;
+    @include bidi.border-radius(0, 1em);
+    position: relative;
+    z-index: -1;
+
+    &::before,
+    &::after {
+      position: absolute;
+      content: "";
+      height: 2em;
+      @include bidi.property(left, right, 0);
+      width: 1em;
+      background-color: transparent;
+    }
+    &::before {
+      bottom: 100%;
+      box-shadow: 0 1em 0 0 var(--background);
+      @include bidi.property(
+        border-bottom-left-radius,
+        border-bottom-right-radius,
+        1em
+      );
+    }
+    &::after {
+      top: 100%;
+      box-shadow: 0 -1em 0 0 var(--background);
+      @include bidi.property(
+        border-top-left-radius,
+        border-top-right-radius,
+        1em
+      );
+    }
   }
 }
 
@@ -446,7 +438,7 @@ $sidebar-width: 25em;
     display: block;
     position: absolute;
     z-index: 2;
-    left: 100%;
+    @include bidi.property(left, right, 100%);
     top: 0;
     bottom: 0;
     width: 100vw;
@@ -456,17 +448,17 @@ $sidebar-width: 25em;
     $sidebar-overlap-fallback: -20em;
     $sidebar-overlap: calc(5em - min(#{$sidebar-width}, #{$max-sidebar-width}));
 
-    margin-right: $sidebar-overlap-fallback;
-    margin-right: $sidebar-overlap;
+    margin-inline-end: $sidebar-overlap-fallback;
+    margin-inline-end: $sidebar-overlap;
 
     &.minimised {
-      margin-left: $sidebar-overlap-fallback;
-      margin-left: $sidebar-overlap;
-      margin-right: 0;
+      margin-inline-start: $sidebar-overlap-fallback;
+      margin-inline-start: $sidebar-overlap;
+      margin-inline-end: 0;
 
       > ul {
-        margin-left: -5em;
-        margin-right: 5em;
+        margin-inline-start: -5em;
+        margin-inline-end: 5em;
       }
 
       .top-box .logo {
@@ -474,13 +466,13 @@ $sidebar-width: 25em;
       }
 
       .overlay {
-        right: 0;
-        left: unset;
+        @include bidi.property(right, left, 0);
+        @include bidi.property(left, right, unset);
       }
     }
 
     &:not(.minimised) .minimised-message.map {
-      margin-right: -5em;
+      margin-inline-end: -5em;
     }
   }
 }

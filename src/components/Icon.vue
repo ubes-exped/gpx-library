@@ -1,7 +1,7 @@
 <template>
   <i
     class="material-icons"
-    :class="{ inline, large, placeholder }"
+    :class="{ inline, large, placeholder, bottom }"
     v-on="$listeners"
   >{{ generated }}<slot /></i>
 </template>
@@ -18,6 +18,8 @@ export default class Icon extends Vue {
 
   @Prop([Boolean]) placeholder!: boolean;
 
+  @Prop([Boolean]) bottom!: boolean;
+
   get generated(): string {
     if (this.placeholder) return "crop_square";
     return "";
@@ -27,17 +29,21 @@ export default class Icon extends Vue {
 
 <style lang="scss">
 .material-icons {
+  user-select: none;
+
   &.inline {
     vertical-align: middle;
     align-self: center;
     font-size: 1em;
   }
-
   &.large {
     font-size: 1.5em;
   }
   &.placeholder {
     visibility: hidden;
+  }
+  &.bottom {
+    vertical-align: bottom;
   }
 }
 </style>
