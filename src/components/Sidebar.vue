@@ -49,7 +49,7 @@
           <p class="download">
             <a :href="walk.href" download>
               GPX
-              <icon inline>text_snippet</icon>
+              <icon inline>get_app</icon>
             </a>
           </p>
         </div>
