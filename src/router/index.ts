@@ -13,7 +13,7 @@ const routes: Array<RouteConfig> = [
     component: MapView,
   },
   {
-    path: "/walks/:id",
+    path: "/walk/:id",
     name: "Walk",
     meta: { title: "" },
     component: MapView,
