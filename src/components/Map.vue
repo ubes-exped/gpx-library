@@ -173,7 +173,7 @@ export default class Map extends Vue {
     this.select(this.walks.find(walk => walk.index == walkIndex) ?? null);
   }
   select(walk: Walk | null) {
-    if (walk?.index === this.selected?.index) return;
+    if (walk?.index === this.localSelected) return;
 
     this.localSelected = walk?.index ?? null;
 
