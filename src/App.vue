@@ -35,7 +35,6 @@ export default class Home extends Vue {
 :root {
   --transition-speed: 0.5s;
   font-size: 12px;
-  transition: font-size var(--transition-speed);
 }
 
 html,
@@ -74,6 +73,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: var(--color);
   background-color: var(--background);
+  transition: font-size var(--transition-speed);
 }
 
 #nav {

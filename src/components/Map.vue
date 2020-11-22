@@ -102,22 +102,16 @@ export default class Map extends Vue {
 
   @PropSync("zoom", { default: 0 }) modelZoom!: number;
 
-  @PropSync("selected", { default: () => null })
-  modelSelected!: number | null;
+  @Prop({ default: null })
+  selected!: Walk | null;
 
-  @PropSync("walks", { default: () => [] }) modelWalks!: Walk[];
+  @Prop({ default: () => [] }) walks!: Walk[];
 
   @Ref() container!: HTMLDivElement;
 
   @Ref() mapElem!: HTMLDivElement;
 
-  localSelected: number | null = this.modelSelected;
-
-  get selectedWalk() {
-    return (
-      this.modelWalks.find(walk => this.modelSelected === walk.index) ?? null
-    );
-  }
+  localSelected: number | null = this.selected?.index ?? null;
 
   token =
     "pk.eyJ1IjoiY2hhcmRpbmciLCJhIjoiY2tocjJpcW5wMGYyOTJydDBicTZvam8xcCJ9.ZJfnHJE_5dJNCsEsQCrwJw";
@@ -168,17 +162,23 @@ export default class Map extends Vue {
         layers: ["lines"]
       });
       if (neighbours.length > 0) {
-        this.select(neighbours[neighbours.length - 1].id as number);
+        this.selectIndex(neighbours[neighbours.length - 1].id as number);
         return;
       }
     }
     this.select(null);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  select(id: number | null) {
-    this.localSelected = id;
-    this.modelSelected = id;
+  selectIndex(walkIndex: number) {
+    this.select(this.walks.find(walk => walk.index == walkIndex) ?? null);
+  }
+  select(walk: Walk | null) {
+    if (walk?.index === this.selected?.index) return;
+
+    this.localSelected = walk?.index ?? null;
+
+    if (walk) this.$router.replace({ name: "Walk", params: { id: walk.id } });
+    else this.$router.replace({ name: "MapView" });
   }
 
   zoomend(map: mapboxgl.Map) {
@@ -195,29 +195,24 @@ export default class Map extends Vue {
     (source as mapboxgl.GeoJSONSource)?.setData(makeGeoJsonData(next));
   }
 
-  @Watch("modelWalks") onWalks() {
-    this.applyWalks(this.modelWalks, "lines");
+  @Watch("walks") onWalks() {
+    this.applyWalks(this.walks, "lines");
   }
 
   @Watch("selected") onSelected() {
+    this.applyWalks(this.selected !== null ? [this.selected] : [], "selected");
+
     this.$nextTick(() => {
-      if (this.modelSelected !== this.localSelected) {
-        this.localSelected = this.modelSelected;
-        this.flyTo(this.selectedWalk);
+      if (this.selected?.index ?? null !== this.localSelected) {
+        this.localSelected = this.selected?.index ?? null;
+        this.flyTo(this.selected);
       }
     });
   }
 
-  @Watch("selectedWalk") onSelectedWalk() {
-    this.applyWalks(
-      this.selectedWalk !== null ? [this.selectedWalk] : [],
-      "selected"
-    );
-  }
-
   applyProps() {
     this.onWalks();
-    this.onSelectedWalk();
+    this.onSelected();
   }
 
   flyTo(walk: Walk | null) {

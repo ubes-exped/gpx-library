@@ -1,20 +1,34 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import { appName } from "@/config";
+import MapView from "@/views/MapView.vue";
 
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
-    path: "/about",
-    name: "Home",
-    component: () => import(/* webpackChunkName: "home" */ "@/views/Home.vue"),
-  },
-  {
     path: "/",
     name: "MapView",
-    meta: { title: "Map View" },
-    component: () => import(/* webpackChunkName: "map" */ "@/views/MapView.vue"),
+    component: MapView,
+  },
+  {
+    path: "/walk/:id",
+    name: "Walk",
+    meta: { title: "" },
+    component: MapView,
+    props: (route) => ({ selectedHash: route.params.id }),
+  },
+  {
+    path: "/about",
+    name: "About",
+    meta: { title: "About" },
+    component: MapView,
+    props: { showHelp: true },
+  },
+  {
+    path: "*",
+    name: "Unknown",
+    redirect: { name: "MapView" },
   },
 ];
 
