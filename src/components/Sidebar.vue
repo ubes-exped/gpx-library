@@ -77,9 +77,8 @@
     </ul>
     <div
       class="overlay"
-      @mousedown="minimised = !minimised"
+      @click="minimised = !minimised"
       @wheel="minimised = true"
-      @touchstart="minimised = true"
     />
   </div>
 </template>
