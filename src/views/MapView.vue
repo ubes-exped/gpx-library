@@ -48,6 +48,8 @@ export default class MapView extends Vue {
     if (browserSelected) {
       this.selected =
         this.walks.find(walk => walk.id === browserSelected) ?? null;
+    } else {
+      this.selected = null;
     }
   }
 
