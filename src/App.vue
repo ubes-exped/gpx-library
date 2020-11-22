@@ -1,10 +1,5 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Map</router-link>
-      |
-      <router-link to="/about">About</router-link>
-    </div>
     <router-view :walks="walks" />
   </div>
 </template>
@@ -78,21 +73,6 @@ body {
   color: var(--color);
   background-color: var(--background);
   transition: font-size var(--transition-speed);
-}
-
-#nav {
-  padding: 30px;
-  text-align: center;
-  display: none;
-}
-
-#nav a {
-  font-weight: bold;
-  color: inherit;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
 }
 
 :root {

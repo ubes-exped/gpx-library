@@ -1,15 +1,17 @@
 <template>
   <div class="map-view">
     <Sidebar
-      :walks="walks"
+      :walks="filteredWalks"
       :selected="selected"
-      use-tags
+      :use-tags="useTags"
+      :all-tags="allTags"
+      :filter.sync="tagFilter"
       @hover-point="hoverPoint"
     />
     <Map
       :center.sync="location"
       :zoom.sync="zoom"
-      :walks="walks"
+      :walks="filteredWalks"
       :selected="selected"
       :hovered-point="hoveredPoint"
     />
@@ -39,6 +41,35 @@ export default class MapView extends Vue {
   selected: Walk | null = null;
 
   zoom = 10;
+
+  useTags = true;
+
+  tagFilter = "";
+
+  get filteredWalks(): Walk[] {
+    if (!this.tagFilter || !this.useTags) return this.walks;
+
+    let foundSelected = false;
+    const filtered = this.walks.filter(walk =>
+      walk.tags?.includes(this.tagFilter)
+    );
+    if (
+      this.selected &&
+      !filtered.find(walk => walk.index === this.selected?.index)
+    ) {
+      this.selected = null;
+    }
+    return filtered;
+  }
+
+  /**
+   * Get all the tags, sorted in alphabetical order
+   */
+  get allTags() {
+    return Array.from(
+      new Set(this.walks.flatMap(walk => walk.tags ?? []))
+    ).sort((a, b) => a.localeCompare(b));
+  }
 
   @Prop(Boolean) showHelp!: boolean;
 

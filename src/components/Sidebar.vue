@@ -2,7 +2,7 @@
   <div class="sidebar" :class="{ minimised }">
     <div class="top-box">
       <div class="controls">
-        <label class="sort">
+        <label class="control">
           Sort:
           <select v-model="sortType">
             <option value="+distance">Most distance</option>
@@ -11,9 +11,13 @@
             <option value="-ascent">Least ascent</option>
           </select>
         </label>
-        <label class="sort" v-if="useTags">
+        <label class="control" v-if="useTags">
           Filter:
-          <select v-model="tagFilter">
+          <span v-if="tagFilter" class="tag">
+            {{ tagFilter }}
+            <Icon inline large @click="tagFilter = ''">close</Icon>
+          </span>
+          <select v-else v-model="tagFilter">
             <option value="">Show all</option>
             <option disabled></option>
             <option v-for="tag in allTags" :key="tag" :value="tag">
@@ -36,7 +40,7 @@
     </div>
     <ul>
       <li
-        v-for="walk of filteredWalks"
+        v-for="walk of sortedWalks"
         :key="walk.index"
         :class="[
           'walk',
@@ -78,10 +82,10 @@
         </div>
       </li>
     </ul>
-    <div class="info" @click="showHelp">
+    <router-link class="info" :to="{ name: 'About' }">
       <span class="copy">UBES 2020</span>
       <span class="link-text">Help/About</span>
-    </div>
+    </router-link>
     <div
       class="overlay"
       @click="minimised = !minimised"
@@ -138,7 +142,7 @@ function throttle<T extends any[]>(
     }, wait);
   };
 
-  const send = function(...args: T) {
+  const send = (...args: T) => {
     if (!timeout) callAndTimeout(...args);
     else cachedArgs = args;
   };
@@ -165,7 +169,8 @@ export default class Sidebar extends Vue {
   localSelected: number | null = this.selected?.index ?? null;
 
   sortType = "-distance";
-  tagFilter = "";
+
+  @PropSync("filter", { default: "" }) tagFilter!: string;
 
   minimised = false;
 
@@ -184,30 +189,7 @@ export default class Sidebar extends Vue {
     return this.walks.sort((a, b) => direction * (a[field] - b[field]));
   }
 
-  get filteredWalks(): Walk[] {
-    if (!this.tagFilter || !this.useTags) return this.sortedWalks;
-
-    let foundSelected = false;
-    const filtered = this.sortedWalks.filter(walk =>
-      walk.tags?.includes(this.tagFilter)
-    );
-    if (
-      this.selected &&
-      !filtered.find(walk => walk.index === this.selected?.index)
-    ) {
-      this.select(null);
-    }
-    return filtered;
-  }
-
-  /**
-   * Get all the tags, sorted in alphabetical order
-   */
-  get allTags() {
-    return Array.from(
-      new Set(this.walks.flatMap(walk => walk.tags ?? []))
-    ).sort((a, b) => a.localeCompare(b));
-  }
+  @Prop({ default: undefined }) allTags?: string[];
 
   @Watch("selected") async onSelected(selected: number | null) {
     if (selected !== this.localSelected) {
@@ -221,10 +203,6 @@ export default class Sidebar extends Vue {
 
   @Emit("hover-point") hoverPoint(point?: { lat: number; long: number }) {
     return point;
-  }
-
-  showHelp() {
-    this.$router.push({ name: "About" });
   }
 
   graphHover = throttle(
@@ -244,6 +222,15 @@ export default class Sidebar extends Vue {
 <style lang="scss">
 $max-sidebar-width: 80vw;
 $sidebar-width: 25em;
+
+@mixin tag {
+  display: inline-block;
+  margin: 0.1em;
+  padding: 0.1em 0.2em;
+  border-radius: 0.3em;
+  border: 1px solid gray;
+  background-color: var(--background-slight);
+}
 
 .sidebar {
   flex: 0 $sidebar-width;
@@ -286,13 +273,7 @@ $sidebar-width: 25em;
 
       .tags {
         .tag {
-          display: inline-block;
-          margin: 0.1em;
-          padding: 0.1em 0.2em;
-          border-radius: 0.3em;
-          border: 1px solid gray;
-          font-size: 0.9em;
-          background-color: var(--background-slight);
+          @include tag;
           cursor: pointer;
         }
       }
@@ -340,18 +321,31 @@ $sidebar-width: 25em;
     flex-direction: column;
     justify-content: center;
 
-    .sort {
+    .control {
       display: flex;
       align-items: center;
       margin: 1ex 0;
+      height: 1.5em;
 
       select {
         flex-shrink: 1;
         min-width: 0;
-        margin-left: 0.5ex;
+        margin-left: 1ex;
 
         @media (hover: none) {
           font-size: 16px;
+        }
+      }
+
+      .tag {
+        @include tag;
+        margin-left: 1ex;
+        font-size: 0.9em;
+
+        i {
+          margin: -1ex;
+          padding: 1ex;
+          cursor: pointer;
         }
       }
     }
@@ -363,6 +357,8 @@ $sidebar-width: 25em;
   font-size: 0.8em;
   padding: 1ex;
   cursor: pointer;
+  color: inherit;
+  text-decoration: inherit;
 
   .copy {
     &::before {
