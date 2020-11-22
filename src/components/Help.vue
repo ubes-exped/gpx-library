@@ -31,20 +31,20 @@
         <h2>Get in touch</h2>
         <p>
           If you have any feedback on the site, please do let us know! If you’re
-          a socity member, send us a message on Discord, otherwise we would be
+          a society member, send us a message on Discord, otherwise we would be
           happy to hear from you by <a :href="mailto">email</a>.
         </p>
         <h2 class="legal" @click="scrollToBottom" ref="legalHeader">
           Legal notice
         </h2>
         <p>Publisher:</p>
-        <p>
+        <blockquote>
           <b>University of Bristol Expeditions Society</b>,<br />
           Bristol SU, Richmond Building,<br />
           105 Queens Road,<br />
           Bristol BS8 1LN,<br />
           United Kingdom
-        </p>
+        </blockquote>
         <p>
           Contact: <a :href="mailto">{{ email }}</a>
         </p>
