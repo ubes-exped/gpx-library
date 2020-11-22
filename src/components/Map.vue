@@ -220,10 +220,14 @@ export default class Map extends Vue {
     this.onSelectedWalk();
   }
 
-  flyTo(walk: Walk | null) {
+  zoomToSelected() {
+    this.flyTo(this.selectedWalk, true);
+  }
+
+  flyTo(walk: Walk | null, zoom = false) {
     if (!walk) return;
 
-    const padding = 50;
+    const padding = 20;
 
     const { map } = this;
 
@@ -243,10 +247,16 @@ export default class Map extends Vue {
       screenNorthEast
     );
     if (
+      zoom ||
       !screenBounds.contains(bounds.getSouthWest()) ||
       !screenBounds.contains(bounds.getNorthEast())
     ) {
-      map.fitBounds(bounds, { padding });
+      const maxZoom = zoom ? 30 : map.getZoom();
+      map.fitBounds(bounds, {
+        padding,
+        linear: true,
+        maxZoom
+      });
     }
   }
 
