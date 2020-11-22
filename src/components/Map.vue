@@ -235,19 +235,7 @@ export default class Map extends Vue {
       (acc, coord) => acc.extend(coord),
       new mapboxgl.LngLatBounds(coordinates[0], coordinates[0])
     );
-    const { width, height } = map.getCanvas().getBoundingClientRect();
-    const screenNorthEast = map.unproject([width - padding, padding]);
-    const screenSouthWest = map.unproject([padding, height - padding]);
-    const screenBounds = new mapboxgl.LngLatBounds(
-      screenSouthWest,
-      screenNorthEast
-    );
-    if (
-      !screenBounds.contains(bounds.getSouthWest()) ||
-      !screenBounds.contains(bounds.getNorthEast())
-    ) {
-      map.fitBounds(bounds, { padding });
-    }
+    map.fitBounds(bounds, { padding, maxZoom: 20 });
   }
 
   resizeListener?: () => void;
