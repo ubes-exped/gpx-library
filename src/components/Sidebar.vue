@@ -28,15 +28,18 @@
       <li
         v-for="walk of sortedWalks"
         :key="walk.index"
-        :class="['walk', { selected: walk.index === selected }]"
-        @click="select(walk.index)"
+        :class="[
+          'walk',
+          { selected: selected && walk.index === selected.index }
+        ]"
+        @click="select(walk)"
       >
         <h3>{{ walk.name }}</h3>
         <p class="stats">
           ↔︎ {{ walk.distance.toFixed(1) }} km, ↗︎
           {{ walk.ascent.toFixed(0) }} m
         </p>
-        <div class="details" v-if="walk.index === selected">
+        <div class="details" v-if="selected && walk.index === selected.index">
           <div
             v-html="walk.elevationGraph"
             @mousemove="graphHover.send(walk, $event)"
@@ -49,12 +52,16 @@
           <p class="download">
             <a :href="walk.href" download>
               GPX
-              <icon inline>get_app</icon>
+              <icon inline large>get_app</icon>
             </a>
           </p>
         </div>
       </li>
     </ul>
+    <div class="info" @click="showHelp">
+      <span class="copy">UBES 2020</span>
+      <span class="link-text">Help/About</span>
+    </div>
     <div
       class="overlay"
       @click="minimised = !minimised"
@@ -131,17 +138,21 @@ function throttle<T extends any[]>(
 export default class Sidebar extends Vue {
   @Prop({ default: () => [] }) walks!: Walk[];
 
-  @PropSync("selected", { default: () => null }) modelSelected!: number | null;
+  @Prop({ default: null }) selected!: Walk | null;
 
-  localSelected?: number | null = this.modelSelected;
+  localSelected: number | null = this.selected?.index ?? null;
 
   sortType = "-distance";
 
   minimised = false;
 
-  @Emit("update:selected")
-  select(id: number) {
-    return id;
+  select(walk: Walk | null) {
+    if (walk?.index === this.selected?.index) return;
+
+    this.localSelected = walk?.index ?? null;
+
+    if (walk) this.$router.replace({ name: "Walk", params: { id: walk.id } });
+    else this.$router.replace({ name: "MapView" });
   }
 
   get sortedWalks() {
@@ -162,6 +173,10 @@ export default class Sidebar extends Vue {
 
   @Emit("hover-point") hoverPoint(point?: { lat: number; long: number }) {
     return point;
+  }
+
+  showHelp() {
+    this.$router.push({ name: "About" });
   }
 
   graphHover = throttle(
@@ -260,6 +275,26 @@ $sidebar-width: 25em;
     padding: 0 0;
     line-height: 5vh;
     text-align: left;
+  }
+}
+
+.info {
+  text-align: center;
+  font-size: 0.8em;
+  padding: 1ex;
+  cursor: pointer;
+
+  .copy {
+    &::before {
+      content: "© ";
+    }
+    &::after {
+      content: " • ";
+    }
+  }
+
+  .link-text {
+    text-decoration: underline;
   }
 }
 

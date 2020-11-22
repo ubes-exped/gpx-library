@@ -1,17 +1,14 @@
 <template>
   <div class="map-view">
-    <Sidebar
-      :walks="walks"
-      :selected.sync="selected"
-      @hover-point="hoverPoint"
-    />
+    <Sidebar :walks="walks" :selected="selected" @hover-point="hoverPoint" />
     <Map
       :center.sync="location"
       :zoom.sync="zoom"
       :walks="walks"
-      :selected.sync="selected"
+      :selected="selected"
       :hovered-point="hoveredPoint"
     />
+    <Help v-if="showHelp" />
   </div>
 </template>
 
@@ -21,19 +18,24 @@ import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
 import Map from "@/components/Map.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import Help from "@/components/Help.vue";
 import Walk, { PointOnLine } from "@/interfaces/Walk";
 
 @Component({
-  components: { Map, Sidebar }
+  components: { Map, Sidebar, Help }
 })
 export default class MapView extends Vue {
   @Prop() walks!: Walk[];
 
   location = { lat: 51.45, lng: -2.6 };
 
-  selected: number | null = null;
+  @Prop({ default: null }) selectedHash!: string | null;
+
+  selected: Walk | null = null;
 
   zoom = 10;
+
+  @Prop(Boolean) showHelp = false;
 
   hoveredPoint: PointOnLine | null = null;
 
@@ -41,27 +43,12 @@ export default class MapView extends Vue {
     this.hoveredPoint = point ?? null;
   }
 
-  getHash(): string {
-    return window.location.hash.replace(/^#/, "");
-  }
-  setHash(newHash: string) {
-    if (this.getHash() !== newHash) {
-      history.replaceState(undefined, newHash, "#" + newHash);
-    }
-  }
-
-  @Watch("walks", { immediate: true }) onWalks() {
-    const browserSelected = this.getHash();
+  @Watch("selectedHash") @Watch("walks", { immediate: true }) onWalks() {
+    const browserSelected = this.selectedHash;
     if (browserSelected) {
       this.selected =
-        this.walks.find(walk => walk.id === browserSelected)?.index ?? null;
+        this.walks.find(walk => walk.id === browserSelected) ?? null;
     }
-  }
-
-  @Watch("selected") onSelected() {
-    this.setHash(
-      this.walks.find(walk => walk.index === this.selected)?.id ?? ""
-    );
   }
 
   hashchangeListener?: () => void;
