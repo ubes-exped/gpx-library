@@ -3,7 +3,6 @@
     <Sidebar
       :walks="walks"
       :selected.sync="selected"
-      @zoom-to-selected="zoomToSelected"
       @hover-point="hoverPoint"
     />
     <Map
@@ -12,7 +11,6 @@
       :walks="walks"
       :selected.sync="selected"
       :hovered-point="hoveredPoint"
-      ref="map"
     />
   </div>
 </template>
@@ -20,7 +18,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Prop, Ref, Watch } from "vue-property-decorator";
+import { Prop, Watch } from "vue-property-decorator";
 import Map from "@/components/Map.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import Walk, { PointOnLine } from "@/interfaces/Walk";
@@ -29,8 +27,6 @@ import Walk, { PointOnLine } from "@/interfaces/Walk";
   components: { Map, Sidebar }
 })
 export default class MapView extends Vue {
-  @Ref() map!: Map;
-
   @Prop() walks!: Walk[];
 
   location = { lat: 51.45, lng: -2.6 };
@@ -40,11 +36,6 @@ export default class MapView extends Vue {
   zoom = 10;
 
   hoveredPoint: PointOnLine | null = null;
-
-  zoomToSelected(selection: number) {
-    this.selected = selection;
-    this.map.zoomToSelected();
-  }
 
   hoverPoint(point?: PointOnLine) {
     this.hoveredPoint = point ?? null;

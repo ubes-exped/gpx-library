@@ -29,8 +29,7 @@
         v-for="walk of sortedWalks"
         :key="walk.index"
         :class="['walk', { selected: walk.index === selected }]"
-        @click="click(walk.index, $event)"
-        @dblclick="forceSelect()"
+        @click="select(walk.index)"
       >
         <h3>{{ walk.name }}</h3>
         <p class="stats">
@@ -141,19 +140,9 @@ export default class Sidebar extends Vue {
 
   minimised = false;
 
-  click(id: number, e: MouseEvent) {
-    if (e.detail > 1) return;
-    this.select(id);
-  }
-
   @Emit("update:selected")
   select(id: number) {
     return id;
-  }
-
-  @Emit("zoom-to-selected")
-  forceSelect() {
-    return this.modelSelected;
   }
 
   get sortedWalks() {
