@@ -101,6 +101,17 @@
           </p>
         </div>
       </li>
+      <li
+        v-if="tagFilter"
+        class="dummy"
+      >
+        <p>
+          Only showing routes tagged as <span class="tag">{{ tagFilter }}</span>
+        </p>
+        <button @click="tagFilter = ''">
+          Show all
+        </button>
+      </li>
     </ul>
     <router-link
       class="info"
@@ -277,39 +288,57 @@ $sidebar-width: 25em;
     background-color: var(--background);
     transition: margin var(--transition-speed);
 
-    > .walk {
+    > * {
       list-style: none;
       margin: 1em;
       padding: 1em;
       border-radius: 0.5em;
       background-color: var(--background-slight);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
 
-      &.selected {
-        background-color: var(--background-strong);
-        cursor: unset;
-      }
+      &.walk {
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
 
-      h3,
-      p {
-        margin: 0.25em 0;
-      }
+        &.selected {
+          background-color: var(--background-strong);
+          cursor: unset;
+        }
 
-      .tags {
-        .tag {
-          @include tablet.full;
-          cursor: pointer;
+        h3,
+        p {
+          margin: 0.25em 0;
+        }
+
+        .tags {
+          .tag {
+            @include tablet.full;
+            cursor: pointer;
+          }
+        }
+
+        .download {
+          text-align: end;
+
+          a {
+            color: var(--color) !important;
+            text-decoration: none;
+          }
         }
       }
 
-      .download {
-        text-align: end;
+      &.dummy {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
 
-        a {
-          color: var(--color) !important;
-          text-decoration: none;
+        .tag {
+          @include tablet.full;
+        }
+
+        p {
+          margin: 0 0 0.5em;
+          align-self: stretch;
         }
       }
     }
@@ -323,17 +352,12 @@ $sidebar-width: 25em;
   justify-content: space-between;
   height: 10vh;
 
-  // Prevent Sass complaining about invert
-  @function invert($options...) {
-    @return #{"invert(#{$options})"};
-  }
-
   a {
     display: contents;
   }
 
   .logo {
-    filter: invert(var(--invert));
+    filter: #{invert }(var(--invert));
     align-self: stretch;
     max-height: 100%;
     max-width: $sidebar-width - 2em;
