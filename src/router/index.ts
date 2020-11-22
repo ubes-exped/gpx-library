@@ -9,7 +9,6 @@ const routes: Array<RouteConfig> = [
   {
     path: "/",
     name: "MapView",
-    meta: { title: "" },
     component: MapView,
   },
   {
@@ -25,6 +24,11 @@ const routes: Array<RouteConfig> = [
     meta: { title: "About" },
     component: MapView,
     props: { showHelp: true },
+  },
+  {
+    path: "*",
+    name: "Unknown",
+    redirect: { name: "MapView" },
   },
 ];
 
