@@ -35,7 +35,7 @@ export default class MapView extends Vue {
 
   zoom = 10;
 
-  @Prop(Boolean) showHelp = false;
+  @Prop(Boolean) showHelp!: boolean;
 
   hoveredPoint: PointOnLine | null = null;
 
