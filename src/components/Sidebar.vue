@@ -1,5 +1,8 @@
 <template>
-  <div class="sidebar" :class="{ minimised }">
+  <div
+    class="sidebar"
+    :class="{ minimised }"
+  >
     <div class="top-box">
       <div class="controls">
         <label class="control">
@@ -11,23 +14,46 @@
             <option value="-ascent">Least ascent</option>
           </select>
         </label>
-        <label class="control" v-if="useTags">
+        <label
+          v-if="useTags"
+          class="control"
+        >
           Filter:
-          <span v-if="tagFilter" class="tag">
+          <span
+            v-if="tagFilter"
+            class="tag"
+          >
             {{ tagFilter }}
-            <Icon inline large @click="tagFilter = ''">close</Icon>
+            <Icon
+              inline
+              large
+              @click="tagFilter = ''"
+            >close</Icon>
           </span>
-          <select v-else v-model="tagFilter">
+          <select
+            v-else
+            v-model="tagFilter"
+          >
             <option value="">Show all</option>
-            <option disabled></option>
-            <option v-for="tag in allTags" :key="tag" :value="tag">
+            <option disabled />
+            <option
+              v-for="tag in allTags"
+              :key="tag"
+              :value="tag"
+            >
               {{ tag }}
             </option>
           </select>
         </label>
       </div>
-      <a href="https://ubes.co.uk" target="_blank">
-        <img class="logo" src="/ubes-logo.svg" />
+      <a
+        href="https://ubes.co.uk"
+        target="_blank"
+      >
+        <img
+          class="logo"
+          src="/ubes-logo.svg"
+        >
       </a>
     </div>
     <div class="minimised-message map">
@@ -53,36 +79,51 @@
           ↔︎ {{ walk.distance.toFixed(1) }} km, ↗︎
           {{ walk.ascent.toFixed(0) }} m
         </p>
-        <div class="details" v-if="selected && walk.index === selected.index">
+        <div
+          v-if="selected && walk.index === selected.index"
+          class="details"
+        >
           <div
-            v-html="walk.elevationGraph"
             @mousemove="graphHover.send(walk, $event)"
             @mouseleave="graphHover.clear()"
+            v-html="walk.elevationGraph"
           />
           <p>
             Created by <cite>{{ walk.author }}</cite>
           </p>
           <p>{{ walk.description }}</p>
-          <div class="tags" v-if="useTags">
+          <div
+            v-if="useTags"
+            class="tags"
+          >
             <span
-              class="tag"
               v-for="tag of walk.tags"
               :key="tag"
+              class="tag"
               @click="tagFilter = tag"
             >
               {{ tag }}
             </span>
           </div>
           <p class="download">
-            <a :href="walk.href" download>
+            <a
+              :href="walk.href"
+              download
+            >
               GPX
-              <icon inline large>get_app</icon>
+              <icon
+                inline
+                large
+              >get_app</icon>
             </a>
           </p>
         </div>
       </li>
     </ul>
-    <router-link class="info" :to="{ name: 'About' }">
+    <router-link
+      class="info"
+      :to="{ name: 'About' }"
+    >
       <span class="copy">UBES 2020</span>
       <span class="link-text">Help/About</span>
     </router-link>
@@ -101,7 +142,7 @@ import {
   PropSync,
   Prop,
   Watch,
-  Emit
+  Emit,
 } from "vue-property-decorator";
 import Walk from "@/interfaces/Walk";
 import Icon from "./Icon.vue";
@@ -125,7 +166,7 @@ type KeysByType<Object, ValueType> = Exclude<
 function throttle<T extends any[]>(
   func: (...args: T) => void,
   onClear?: () => void,
-  wait = 100
+  wait = 100,
 ) {
   let cachedArgs: T | undefined;
   let timeout: number | undefined;
@@ -157,7 +198,7 @@ function throttle<T extends any[]>(
 }
 
 @Component({
-  components: { Icon }
+  components: { Icon },
 })
 export default class Sidebar extends Vue {
   @Prop({ default: () => [] }) walks!: Walk[];
@@ -214,7 +255,7 @@ export default class Sidebar extends Vue {
       const point = walk.getOffset(offset);
       this.hoverPoint(point);
     },
-    () => this.hoverPoint()
+    () => this.hoverPoint(),
   );
 }
 </script>

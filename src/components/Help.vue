@@ -1,10 +1,22 @@
 <template>
-  <div class="help-wrapper" @click.self="close">
+  <div
+    class="help-wrapper"
+    @click.self="close"
+  >
     <div class="help-window">
       <h1>
-        <Icon inline class="back" @click="close">arrow_back</Icon>
+        <Icon
+          inline
+          class="back"
+          @click="close"
+        >
+          arrow_back
+        </Icon>
         <span>UBES Walks Library</span>
-        <Icon inline placeholder />
+        <Icon
+          inline
+          placeholder
+        />
       </h1>
       <div class="help-scroller">
         <p>
@@ -34,15 +46,19 @@
           a society member, send us a message on Discord, otherwise we would be
           happy to hear from you by <a :href="mailto">email</a>.
         </p>
-        <h2 class="legal" @click="scrollToBottom" ref="legalHeader">
+        <h2
+          ref="legalHeader"
+          class="legal"
+          @click="scrollToBottom"
+        >
           Legal notice
         </h2>
         <p>Publisher:</p>
         <blockquote>
-          <b>University of Bristol Expeditions Society</b>,<br />
-          Bristol SU, Richmond Building,<br />
-          105 Queens Road,<br />
-          Bristol BS8 1LN,<br />
+          <b>University of Bristol Expeditions Society</b>,<br>
+          Bristol SU, Richmond Building,<br>
+          105 Queens Road,<br>
+          Bristol BS8 1LN,<br>
           United Kingdom
         </blockquote>
         <p>
@@ -55,7 +71,9 @@
 
 <script lang="ts">
 import router from "@/router";
-import { Component, Emit, Prop, Ref, Vue } from "vue-property-decorator";
+import {
+  Component, Emit, Prop, Ref, Vue,
+} from "vue-property-decorator";
 import Icon from "./Icon.vue";
 
 @Component({ components: { Icon } })
@@ -67,6 +85,7 @@ export default class Help extends Vue {
   }
 
   readonly email = "walks@ubes.co.uk";
+
   get mailto() {
     return `mailto:${this.email}`;
   }

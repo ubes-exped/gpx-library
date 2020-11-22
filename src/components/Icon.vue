@@ -3,8 +3,7 @@
     class="material-icons"
     :class="{ inline, large, placeholder }"
     v-on="$listeners"
-    >{{ generated }}<slot
-  /></i>
+  >{{ generated }}<slot /></i>
 </template>
 
 <script lang="ts">
@@ -14,12 +13,14 @@ import { Component, Prop } from "vue-property-decorator";
 @Component
 export default class Icon extends Vue {
   @Prop([Boolean]) inline!: boolean;
+
   @Prop([Boolean]) large!: boolean;
+
   @Prop([Boolean]) placeholder!: boolean;
 
   get generated(): string {
     if (this.placeholder) return "crop_square";
-    else return "";
+    return "";
   }
 }
 </script>

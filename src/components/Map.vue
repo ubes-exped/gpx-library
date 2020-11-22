@@ -1,6 +1,13 @@
 <template>
-  <div ref="container" class="map-container">
-    <div v-if="isFirstMap" id="map" ref="mapElem" />
+  <div
+    ref="container"
+    class="map-container"
+  >
+    <div
+      v-if="isFirstMap"
+      id="map"
+      ref="mapElem"
+    />
   </div>
 </template>
 <script lang="ts">
@@ -11,7 +18,7 @@ import {
   Watch,
   Ref,
   Emit,
-  Prop
+  Prop,
 } from "vue-property-decorator";
 
 import GeoJSON from "geojson";
@@ -31,24 +38,24 @@ const fromZoom = (...pairs: [number, number][]): mapboxgl.Expression => [
   "interpolate",
   ["linear"],
   ["zoom"],
-  ...pairs.flatMap(([zoomLevel, value]) => [zoomLevel, value])
+  ...pairs.flatMap(([zoomLevel, value]) => [zoomLevel, value]),
 ];
 
 const makeGeoJsonData = (walks: Walk[] = []): GeoJSON.FeatureCollection => ({
   type: "FeatureCollection",
   features: walks
-    .filter(walk => walk.polyline)
-    .map(walk => ({
+    .filter((walk) => walk.polyline)
+    .map((walk) => ({
       type: "Feature",
       id: walk.index,
       properties: null,
-      geometry: polyline.toGeoJSON(walk.polyline)
-    }))
+      geometry: polyline.toGeoJSON(walk.polyline),
+    })),
 });
 
 const makeGeoJson = (): mapboxgl.GeoJSONSourceRaw => ({
   type: "geojson",
-  data: makeGeoJsonData()
+  data: makeGeoJsonData(),
 });
 
 const sources = ["lines", "selected"];
@@ -58,14 +65,14 @@ const layers = {
     source: "lines",
     color: "#00F",
     opacity: fromZoom([5, 0.75], [10, 0.55]),
-    width: fromZoom([5, 1], [17, 4], [22, 8])
+    width: fromZoom([5, 1], [17, 4], [22, 8]),
   },
   selected: {
     source: "selected",
     color: "#F00",
     opacity: 1,
-    width: fromZoom([5, 4], [17, 8])
-  }
+    width: fromZoom([5, 4], [17, 8]),
+  },
 };
 
 type LayerDef = typeof layers[keyof typeof layers];
@@ -78,8 +85,8 @@ const buildLineLayer = (id: string, layer: LayerDef): mapboxgl.Layer => ({
   paint: {
     "line-color": layer.color,
     "line-opacity": layer.opacity,
-    "line-width": layer.width
-  }
+    "line-width": layer.width,
+  },
 });
 
 const makeMarker = () => {
@@ -123,14 +130,13 @@ export default class Map extends Vue {
   @Watch("mapStyle") onMapStyle(style: string) {
     this.map?.setStyle(style);
   }
+
   mapLoaded(map: mapboxgl.Map) {
     map.resize();
 
-    sources.forEach(id => map.addSource(id, makeGeoJson()));
+    sources.forEach((id) => map.addSource(id, makeGeoJson()));
 
-    Object.entries(layers).forEach(([id, layer]) =>
-      map.addLayer(buildLineLayer(id, layer))
-    );
+    Object.entries(layers).forEach(([id, layer]) => map.addLayer(buildLineLayer(id, layer)));
 
     this.applyProps();
   }
@@ -152,14 +158,14 @@ export default class Map extends Vue {
   click(map: mapboxgl.Map, e: mapboxgl.MapMouseEvent) {
     const surround = (
       point: mapboxgl.Point,
-      offset: number
+      offset: number,
     ): [mapboxgl.PointLike, mapboxgl.PointLike] => [
       [point.x - offset, point.y + offset],
-      [point.x + offset, point.y - offset]
+      [point.x + offset, point.y - offset],
     ];
     for (let i = 0; i < 5; i += 1) {
       const neighbours = map.queryRenderedFeatures(surround(e.point, i), {
-        layers: ["lines"]
+        layers: ["lines"],
       });
       if (neighbours.length > 0) {
         this.selectIndex(neighbours[neighbours.length - 1].id as number);
@@ -170,8 +176,9 @@ export default class Map extends Vue {
   }
 
   selectIndex(walkIndex: number) {
-    this.select(this.walks.find(walk => walk.index == walkIndex) ?? null);
+    this.select(this.walks.find((walk) => walk.index == walkIndex) ?? null);
   }
+
   select(walk: Walk | null) {
     if (walk?.index === this.localSelected) return;
 
@@ -203,7 +210,7 @@ export default class Map extends Vue {
     this.applyWalks(this.selected !== null ? [this.selected] : [], "selected");
 
     this.$nextTick(() => {
-      if (this.selected?.index ?? null !== this.localSelected) {
+      if (this.selected?.index ?? this.localSelected !== null) {
         this.localSelected = this.selected?.index ?? null;
         this.flyTo(this.selected);
       }
@@ -228,7 +235,7 @@ export default class Map extends Vue {
       .map<[number, number]>(([y, x]) => [x, y]);
     const bounds = coordinates.reduce(
       (acc, coord) => acc.extend(coord),
-      new mapboxgl.LngLatBounds(coordinates[0], coordinates[0])
+      new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]),
     );
     map.fitBounds(bounds, { padding, maxZoom: 20 });
   }
@@ -247,7 +254,7 @@ export default class Map extends Vue {
         container: this.mapElem,
         style: this.mapStyle,
         center: this.modelCenter,
-        zoom: this.modelZoom
+        zoom: this.modelZoom,
       });
       map.addControl(new mapboxgl.FullscreenControl(), "top-right");
       map.addControl(new mapboxgl.ScaleControl(), "bottom-left");
@@ -258,7 +265,7 @@ export default class Map extends Vue {
     window.cachedMapComponent = this;
     this.map.on("zoomend", () => window.cachedMapComponent?.zoomend(map));
     this.map.on("moveend", () => window.cachedMapComponent?.moveend(map));
-    this.map.on("click", ev => window.cachedMapComponent?.click(map, ev));
+    this.map.on("click", (ev) => window.cachedMapComponent?.click(map, ev));
     this.map.on("load", () => window.cachedMapComponent?.mapLoaded(map));
 
     // Apply provided props
