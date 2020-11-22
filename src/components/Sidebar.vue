@@ -2,7 +2,7 @@
   <div class="sidebar" :class="{ minimised }">
     <div class="top-box">
       <div class="controls">
-        <p class="sort">
+        <label class="sort">
           Sort:
           <select v-model="sortType">
             <option value="+distance">Most distance</option>
@@ -10,8 +10,8 @@
             <option value="+ascent">Most ascent</option>
             <option value="-ascent">Least ascent</option>
           </select>
-        </p>
-        <p class="sort">
+        </label>
+        <label class="sort">
           Filter:
           <select v-model="tagFilter">
             <option value="">Show all</option>
@@ -20,7 +20,7 @@
               {{ tag }}
             </option>
           </select>
-        </p>
+        </label>
       </div>
       <a href="https://ubes.co.uk" target="_blank">
         <img class="logo" src="/ubes-logo.svg" />
@@ -317,9 +317,23 @@ $sidebar-width: 25em;
   }
 
   > .controls {
-    padding: 0 0;
-    line-height: 5vh;
+    padding: 0;
     text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .sort {
+      display: flex;
+      align-items: center;
+      margin: 1ex 0;
+
+      select {
+        flex-shrink: 1;
+        min-width: 0;
+        margin-left: 0.5ex;
+      }
+    }
   }
 }
 
