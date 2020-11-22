@@ -1,6 +1,11 @@
 <template>
   <div class="map-view">
-    <Sidebar :walks="walks" :selected="selected" @hover-point="hoverPoint" />
+    <Sidebar
+      :walks="walks"
+      :selected="selected"
+      use-tags
+      @hover-point="hoverPoint"
+    />
     <Map
       :center.sync="location"
       :zoom.sync="zoom"

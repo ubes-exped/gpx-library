@@ -11,7 +11,7 @@
             <option value="-ascent">Least ascent</option>
           </select>
         </label>
-        <label class="sort">
+        <label class="sort" v-if="useTags">
           Filter:
           <select v-model="tagFilter">
             <option value="">Show all</option>
@@ -59,7 +59,7 @@
             Created by <cite>{{ walk.author }}</cite>
           </p>
           <p>{{ walk.description }}</p>
-          <div class="tags">
+          <div class="tags" v-if="useTags">
             <span
               class="tag"
               v-for="tag of walk.tags"
@@ -160,6 +160,8 @@ export default class Sidebar extends Vue {
 
   @Prop({ default: null }) selected!: Walk | null;
 
+  @Prop(Boolean) useTags!: boolean;
+
   localSelected: number | null = this.selected?.index ?? null;
 
   sortType = "-distance";
@@ -183,7 +185,8 @@ export default class Sidebar extends Vue {
   }
 
   get filteredWalks(): Walk[] {
-    if (!this.tagFilter) return this.sortedWalks;
+    if (!this.tagFilter || !this.useTags) return this.sortedWalks;
+
     let foundSelected = false;
     const filtered = this.sortedWalks.filter(walk =>
       walk.tags?.includes(this.tagFilter)
