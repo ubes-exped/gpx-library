@@ -266,8 +266,10 @@ export default class Sidebar extends Vue {
 @use 'src/styles/tablet';
 @use 'src/styles/bidi';
 
-$max-sidebar-width: 80vw;
-$sidebar-width: 25em;
+$max-sidebar-width: calc(100vw - 6rem);
+$sidebar-width: 25rem;
+
+$minimised-width: 5rem;
 
 .sidebar {
   flex: 0 $sidebar-width;
@@ -360,12 +362,15 @@ $sidebar-width: 25em;
     filter: #{invert }(var(--invert));
     align-self: stretch;
     max-height: 100%;
-    max-width: $sidebar-width - 2em;
-    transition: max-width var(--transition-speed);
+    max-width: #{"min" }(20vw, $sidebar-width - 2rem);
+    transition: max-width var(--transition-speed),
+      margin var(--transition-speed);
+    margin-inline-start: 0;
   }
 
   > .controls {
     padding: 0;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -373,8 +378,11 @@ $sidebar-width: 25em;
     .control {
       display: flex;
       align-items: center;
-      margin: 1ex 0;
-      height: 1.5em;
+
+      @media screen and (max-width: 400px) {
+        flex-direction: column;
+        align-items: stretch;
+      }
     }
   }
 }
@@ -407,11 +415,11 @@ $sidebar-width: 25em;
 }
 
 .minimised-message {
-  height: 5em;
+  height: 5rem;
   background: var(--background);
-  width: 5em;
+  width: $minimised-width;
   display: flex;
-  margin-bottom: -5em;
+  margin-bottom: -5rem;
   flex-direction: column;
   justify-content: space-evenly;
   margin-inline-start: auto;
@@ -469,8 +477,10 @@ $sidebar-width: 25em;
   }
 
   .sidebar {
-    $sidebar-overlap-fallback: -20em;
-    $sidebar-overlap: calc(5em - min(#{$sidebar-width}, #{$max-sidebar-width}));
+    $sidebar-overlap-fallback: -20rem;
+    $sidebar-overlap: calc(
+      #{$minimised-width} - min(#{$sidebar-width}, #{$max-sidebar-width})
+    );
 
     margin-inline-end: $sidebar-overlap-fallback;
     margin-inline-end: $sidebar-overlap;
@@ -481,22 +491,29 @@ $sidebar-width: 25em;
       margin-inline-end: 0;
 
       > ul {
-        margin-inline-start: -5em;
-        margin-inline-end: 5em;
+        margin-inline-start: -$minimised-width;
+        margin-inline-end: $minimised-width;
       }
 
       .top-box .logo {
-        max-width: 3em;
+        $minimised-padding: 1rem;
+
+        margin-inline-start: $minimised-padding;
+        max-width: $minimised-width - 2 * $minimised-padding;
       }
 
       .overlay {
         @include bidi.property(right, left, 0);
         @include bidi.property(left, right, unset);
       }
+
+      .info {
+        margin-inline-end: $minimised-width;
+      }
     }
 
     &:not(.minimised) .minimised-message.map {
-      margin-inline-end: -5em;
+      margin-inline-end: -$minimised-width;
     }
   }
 }

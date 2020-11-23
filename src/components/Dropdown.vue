@@ -23,7 +23,6 @@
     <Icon
       v-if="clearButton && model !== blankValue"
       inline
-      bottom
       large
       @click="model = blankValue"
     >
@@ -75,9 +74,10 @@ export default class Dropdown extends Vue {
 @use 'src/styles/tablet';
 
 .dropdown {
-  display: inline-block;
-  margin-inline-start: 1ex;
+  display: inline-flex;
+  margin: 1ex;
   @include tablet.colours;
+  max-width: min-content;
 
 // Hack to prevent zooming on iOS when entering dropdown
     @media (hover: none) {
@@ -96,6 +96,7 @@ export default class Dropdown extends Vue {
     font: inherit;
     color: inherit;
     font-size: 0.9em;
+    text-overflow: ellipsis;
 
     &:focus {
       outline: none;
