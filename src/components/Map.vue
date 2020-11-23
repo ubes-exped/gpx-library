@@ -92,8 +92,8 @@ const buildLineLayer = (id: string, layer: LayerDef): mapboxgl.Layer => ({
 const makeMarker = () => {
   const wrapper = document.createElement("div");
   wrapper.innerHTML = `<svg class="arrow" viewBox="0 0 500 800">
-		  <polygon points="100,400 400,400 250,100" class="triangle" />
-	  </svg>`;
+    <polygon points="100,400 200,400 250,300 300,400 400,400 250,100" class="triangle" />
+  </svg>`;
   return wrapper;
 };
 
@@ -176,7 +176,7 @@ export default class Map extends Vue {
   }
 
   selectIndex(walkIndex: number) {
-    this.select(this.walks.find((walk) => walk.index == walkIndex) ?? null);
+    this.select(this.walks.find((walk) => walk.index === walkIndex) ?? null);
   }
 
   select(walk: Walk | null) {
