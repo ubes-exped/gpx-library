@@ -378,11 +378,7 @@ $minimised-width: 5rem;
     .control {
       display: flex;
       align-items: center;
-
-      @media screen and (max-width: 400px) {
-        flex-direction: column;
-        align-items: stretch;
-      }
+      min-width: 0;
     }
   }
 }

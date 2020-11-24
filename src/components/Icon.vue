@@ -30,6 +30,7 @@ export default class Icon extends Vue {
 <style lang="scss">
 .material-icons {
   user-select: none;
+  width: 1em;
 
   &.inline {
     vertical-align: middle;

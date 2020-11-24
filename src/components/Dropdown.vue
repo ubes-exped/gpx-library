@@ -78,6 +78,7 @@ export default class Dropdown extends Vue {
   margin: 1ex;
   @include tablet.colours;
   max-width: min-content;
+  min-width: 3em;
 
 // Hack to prevent zooming on iOS when entering dropdown
     @media (hover: none) {
