@@ -8,7 +8,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import Walk, { RawWalk } from "@/interfaces/Walk";
-import { appName } from "./config";
+import { appName, routesFile } from "@/config";
 
 @Component
 export default class Home extends Vue {
@@ -18,10 +18,10 @@ export default class Home extends Vue {
 
   async created() {
     const walksResponse = await fetch(
-      "https://routes.ubes.co.uk/generated/data.json"
+      routesFile,
     );
     const rawWalks: RawWalk[] = await walksResponse.json();
-    this.walks = rawWalks.map(walk => new Walk(walk));
+    this.walks = rawWalks.map((walk) => new Walk(walk));
   }
 }
 </script>
