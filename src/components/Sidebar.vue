@@ -70,7 +70,7 @@
             @mouseleave="graphHover.clear()"
             v-html="walk.elevationGraph"
           />
-          <p>
+          <p v-if="walk.author">
             Created by <cite>{{ walk.author }}</cite>
           </p>
           <p>{{ walk.description }}</p>
