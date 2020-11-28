@@ -180,7 +180,7 @@ export default class Map extends Vue {
   }
 
   select(walk: Walk | null) {
-    if (walk?.index === this.localSelected) return;
+    if (this.localSelected === (walk?.index ?? null)) return;
 
     this.localSelected = walk?.index ?? null;
 
