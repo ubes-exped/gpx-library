@@ -305,11 +305,19 @@ $minimised-width: 5rem;
         &.selected {
           background-color: var(--background-strong);
           cursor: unset;
+          scroll-margin: 4em;
+        }
+
+        h3 {
+          position: sticky;
+          top: 0;
+          background: inherit;
         }
 
         h3,
         p {
-          margin: 0.25em 0;
+          margin: 0;
+          padding: 0.25em 0;
         }
 
         .tags {
