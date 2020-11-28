@@ -3,8 +3,6 @@ import turfBearing from "@turf/bearing";
 import turfDestination from "@turf/destination";
 import turfDistance from "@turf/distance";
 
-import { routesFile } from "@/config";
-
 export interface RawWalk {
   id: string;
   filename: string;
@@ -71,10 +69,6 @@ export default class Walk {
   /** Distance of the walk in kilometres */
   get distance(): number {
     return this.length / 1000;
-  }
-
-  get href(): string {
-    return new URL(`/${this.filename}`, routesFile).href;
   }
 
   get elevationGraph() {

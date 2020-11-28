@@ -5,9 +5,14 @@
   RewriteCond %{HTTPS} off
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R,L]
 
+  # Proxy URLs
+  RewriteCond %{REQUEST_URI} ^\/walks.json$
+  RewriteRule .* update.php [END]
+
   # Vue history mode
   RewriteBase /
   RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_URI} \.php$ [OR]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]

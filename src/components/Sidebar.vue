@@ -89,7 +89,7 @@
           </div>
           <p class="download">
             <a
-              :href="walk.href"
+              :href="walk.filename"
               download
             >
               GPX
