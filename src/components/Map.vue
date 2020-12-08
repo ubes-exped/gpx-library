@@ -136,6 +136,8 @@ export default class Map extends Vue {
 
     sources.forEach((id) => map.addSource(id, makeGeoJson()));
 
+    map.setTerrain({ source: "mapbox://mapbox.terrain-rgb", exaggeration: 1.5 });
+
     Object.entries(layers).forEach(([id, layer]) => map.addLayer(buildLineLayer(id, layer)));
 
     this.applyProps();

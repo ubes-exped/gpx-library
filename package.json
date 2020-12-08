@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "compress":"rsync -a apache/ dist/ && tar -czf dist.tar.gz dist",
+    "compress": "rsync -a apache/ dist/ && tar -czf dist.tar.gz dist",
     "deploy": "scp deploy.sh dist.tar.gz ubes:walks && ssh ubes 'walks/deploy.sh'",
     "build-deploy": "yarn build && yarn compress && yarn deploy",
     "lint": "vue-cli-service lint"
@@ -18,7 +18,7 @@
     "@turf/helpers": "^6.1.4",
     "core-js": "^3.6.5",
     "geojson": "^0.5.0",
-    "mapbox-gl": "^1.12.0",
+    "mapbox-gl": "^2.0.0",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.6",
     "vue-head": "^2.2.0",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
-    "@types/mapbox-gl": "^1.12.8",
+    "@types/mapbox-gl": "^1.12.9",
     "@types/mapbox__polyline": "^1.0.2",
     "@types/turf": "^3.5.32",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
