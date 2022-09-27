@@ -46,6 +46,10 @@
       <p><Icon>arrow_back</Icon></p>
       <p>Back</p>
     </div>
+    <form action="/upload.php">
+      <input type="file" id="myFile" name="filename">
+      <input type="submit" value="Upload">
+    </form>
     <ul>
       <li
         v-for="walk of sortedWalks"
