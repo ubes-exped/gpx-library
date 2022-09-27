@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "compress":"rsync -a apache/ dist/ && tar -czf dist.tar.gz dist",
+    "compress":"rsync -a apache/ dist/ && rsync -a tools/ dist/ && tar -czf dist.tar.gz dist",
     "deploy": "scp deploy.sh dist.tar.gz ubes:walks && ssh ubes 'walks/deploy.sh'",
     "build-deploy": "yarn build && yarn compress && yarn deploy",
     "lint": "vue-cli-service lint"

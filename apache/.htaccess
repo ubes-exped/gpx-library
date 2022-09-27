@@ -9,6 +9,10 @@
   RewriteCond %{REQUEST_URI} ^\/walks.json$
   RewriteRule .* update.php [END]
 
+  # Proxy URLs
+  RewriteCond %{REQUEST_URI} ^\/upload.php$
+  RewriteRule .* upload.php%{REQUEST_DATA} [END]
+
   # Vue history mode
   RewriteBase /
   RewriteRule ^index\.html$ - [L]
