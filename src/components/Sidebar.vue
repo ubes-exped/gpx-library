@@ -46,6 +46,10 @@
       <p><Icon>arrow_back</Icon></p>
       <p>Back</p>
     </div>
+    <form action="upload.php" method="post" enctype="multipart/form-data">
+      <input type="file" id="gpxfile" name="gpxfile">
+      <input type="submit" value="Upload">
+    </form>
     <ul>
       <li
         v-for="walk of sortedWalks"
