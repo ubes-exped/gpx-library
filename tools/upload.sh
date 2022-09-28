@@ -1,8 +1,11 @@
 #!/bin/bash
 
-set -e
-
 REPO_PATH="routes.ubes.co.uk"
+
+while ! mkdir lock_dir
+do
+    sleep 1
+done
 
 cd $REPO_PATH
 
@@ -14,3 +17,5 @@ git checkout origin/master
 git add gpx/*
 git commit -m "Automatically upload"
 git push origin HEAD:master
+
+rm -r lock_dir
