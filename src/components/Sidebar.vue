@@ -38,6 +38,21 @@
         >
       </a>
     </div>
+    <form
+      action="upload.php"
+      method="post"
+      enctype="multipart/form-data"
+    >
+      <input
+        id="gpxfile"
+        type="file"
+        name="gpxfile"
+      >
+      <input
+        type="submit"
+        value="Upload"
+      >
+    </form>
     <div class="minimised-message map">
       <p><Icon>map</Icon></p>
       <p>Map</p>
@@ -46,10 +61,6 @@
       <p><Icon>arrow_back</Icon></p>
       <p>Back</p>
     </div>
-    <form action="upload.php" method="post" enctype="multipart/form-data">
-      <input type="file" id="gpxfile" name="gpxfile">
-      <input type="submit" value="Upload">
-    </form>
     <ul>
       <li
         v-for="walk of sortedWalks"
@@ -72,8 +83,21 @@
           <div
             @mousemove="graphHover.send(walk, $event)"
             @mouseleave="graphHover.clear()"
-            v-html="walk.elevationGraph"
-          />
+          >
+            <svg
+              :viewBox="`0 -2 ${walk.elevationGraph.width} ${walk.elevationGraph.height + 4}`"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                :d="walk.elevationGraph.lineString"
+                stroke="var(--color)"
+                stroke-width="4"
+                stroke-linecap="square"
+                stroke-linejoin="round"
+                fill="transparent"
+              />
+            </svg>
+          </div>
           <p v-if="walk.author">
             Created by <cite>{{ walk.author }}</cite>
           </p>
@@ -121,7 +145,7 @@
       class="info"
       :to="{ name: 'About' }"
     >
-      <span class="copy">UBES 2020</span>
+      <span class="copy">UBES 2025</span>
       <span class="link-text">Help/About</span>
     </router-link>
     <div

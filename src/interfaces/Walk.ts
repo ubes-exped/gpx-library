@@ -71,7 +71,14 @@ export default class Walk {
     return this.length / 1000;
   }
 
+  #elevationGraph?: {lineString: string, width: number, height: number};
+
   get elevationGraph() {
+    this.#elevationGraph ??= this.makeElevationGraph();
+    return this.#elevationGraph;
+  }
+
+  private makeElevationGraph() {
     const width = 500;
     let height = 100;
 
@@ -99,15 +106,7 @@ export default class Walk {
       .map(([distance, elevation]) => [distance * scale, yValue(elevation)].join(" "))
       .join("L");
 
-    return `
-      <svg viewBox="0 -2 ${width} ${height + 4}" xmlns="http://www.w3.org/2000/svg">
-        <path d="M${pathString}"
-          stroke="var(--color)"
-          stroke-width="4"
-          stroke-linecap="square"
-          stroke-linejoin="round"
-          fill="transparent" />
-      </svg>`;
+    return { width, height, lineString: `M${pathString}` };
   }
 
   /**
