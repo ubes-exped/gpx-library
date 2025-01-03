@@ -39,13 +39,14 @@
       </a>
     </div>
     <form
-      action="upload.php"
+      action="/upload.php"
       method="post"
       enctype="multipart/form-data"
+      required
     >
       <input
-        id="gpxfile"
         type="file"
+        accept=".gpx,application/gpx+xml"
         name="gpxfile"
       >
       <input
