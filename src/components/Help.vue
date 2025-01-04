@@ -25,7 +25,7 @@
     <h2>Get in touch</h2>
     <p>
       If you have any feedback on the site, please do let us know! If you’re a society member,
-      send us a message on Discord, otherwise we would be happy to hear from you by
+      send us a message on WhatsApp, otherwise we would be happy to hear from you by
       <a :href="mailto">email</a>.
     </p>
     <h2
@@ -36,11 +36,11 @@
       Legal notice
     </h2>
     <p>Publisher:</p>
-    <blockquote>
-      <b>University of Bristol Expeditions Society</b>,<br>
-      Bristol SU, Richmond Building,<br>
-      105 Queens Road,<br>
-      Bristol BS8 1LN,<br>
+    <blockquote class="pre-line">
+      <b>University of Bristol Expeditions Society</b>,
+      Bristol SU, Richmond Building,
+      105 Queens Road,
+      Bristol BS8 1LN,
       United Kingdom
     </blockquote>
     <p>
@@ -84,5 +84,9 @@ export default class Help extends Vue {
   background-color: var(--background);
   padding-top: 0.16em;
   margin-top: 0.67em;
+}
+
+.pre-line {
+  white-space: pre-line;
 }
 </style>
