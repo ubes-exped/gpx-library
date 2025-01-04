@@ -2,6 +2,7 @@ import polyline from "@mapbox/polyline";
 import turfBearing from "@turf/bearing";
 import turfDestination from "@turf/destination";
 import turfDistance from "@turf/distance";
+import { PointOnLine } from "./Point";
 
 export interface RawWalk {
   id: string;
@@ -15,12 +16,6 @@ export interface RawWalk {
   ascent: number;
   length: number;
   polyline: string;
-}
-
-export interface PointOnLine {
-  lat: number;
-  long: number;
-  bearing: number;
 }
 
 export default class Walk {
