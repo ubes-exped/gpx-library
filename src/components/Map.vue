@@ -185,7 +185,7 @@ export default class Map extends Vue {
     this.localSelected = walk?.index ?? null;
 
     if (walk) this.$router.replace({ name: "Walk", params: { id: walk.id } });
-    else this.$router.replace({ name: "MapView" });
+    else this.$router.replace({ name: "MaybeFilter" });
   }
 
   zoomend(map: mapboxgl.Map) {

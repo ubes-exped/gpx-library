@@ -10,6 +10,7 @@ const routes: Array<RouteConfig> = [
     path: "/",
     name: "MapView",
     component: MapView,
+    props: { filterFromUrl: "" },
   },
   {
     path: "/walk/:id",
@@ -19,11 +20,32 @@ const routes: Array<RouteConfig> = [
     props: (route) => ({ selectedHash: route.params.id }),
   },
   {
+    path: "/filter/:filter",
+    name: "Filter",
+    meta: { title: "" },
+    component: MapView,
+    props: (route) => ({ filterFromUrl: route.params.filter }),
+  },
+  {
+    path: "/filter",
+    name: "MaybeFilter",
+    meta: { title: "" },
+    component: MapView,
+    props: { redirectToFilter: true },
+  },
+  {
     path: "/about",
     name: "About",
     meta: { title: "About" },
     component: MapView,
     props: { showHelp: true },
+  },
+  {
+    path: "/contribute",
+    name: "Upload",
+    meta: { title: "Upload" },
+    component: MapView,
+    props: { showUpload: true },
   },
   {
     path: "*",

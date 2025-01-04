@@ -38,22 +38,6 @@
         >
       </a>
     </div>
-    <form
-      action="/upload.php"
-      method="post"
-      enctype="multipart/form-data"
-      required
-    >
-      <input
-        type="file"
-        accept=".gpx,application/gpx+xml"
-        name="gpxfile"
-      >
-      <input
-        type="submit"
-        value="Upload"
-      >
-    </form>
     <div class="minimised-message map">
       <p><Icon>map</Icon></p>
       <p>Map</p>
@@ -142,13 +126,19 @@
         </button>
       </li>
     </ul>
-    <router-link
-      class="info"
-      :to="{ name: 'About' }"
-    >
-      <span class="copy">UBES 2025</span>
-      <span class="link-text">Help/About</span>
-    </router-link>
+    <div class="info">
+      <router-link
+        :to="{ name: 'About' }"
+      >
+        <span class="copy">UBES 2025</span>
+        <span class="link-text">Help/About</span>
+      </router-link>
+      <router-link
+        :to="{ name: 'Upload' }"
+      >
+        <span class="link-text">Contribute</span>
+      </router-link>
+    </div>
     <div
       class="overlay"
       @click="minimised = !minimised"
@@ -424,9 +414,13 @@ $minimised-width: 5rem;
   text-align: center;
   font-size: 0.8em;
   padding: 1ex;
-  cursor: pointer;
-  color: inherit;
-  text-decoration: inherit;
+
+  > a {
+    display: contents;
+    cursor: pointer;
+    color: inherit;
+    text-decoration: inherit;
+  }
 
   .copy {
     &::before {
@@ -435,6 +429,10 @@ $minimised-width: 5rem;
     &::after {
       content: " • ";
     }
+  }
+
+  > a:not(:last-child)::after {
+    content: " • ";
   }
 
   .link-text {
