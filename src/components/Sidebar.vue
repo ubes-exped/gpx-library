@@ -47,73 +47,16 @@
       <p>Back</p>
     </div>
     <ul>
-      <li
+      <SidebarWalk
         v-for="walk of sortedWalks"
         :key="walk.index"
-        :class="[
-          'walk',
-          { selected: selected && walk.index === selected.index }
-        ]"
-        @click="select(walk)"
-      >
-        <h3>{{ walk.name }}</h3>
-        <p class="stats">
-          ↔︎ {{ walk.distance.toFixed(1) }} km, ↗︎
-          {{ walk.ascent.toFixed(0) }} m
-        </p>
-        <div
-          v-if="selected && walk.index === selected.index"
-          class="details"
-        >
-          <div
-            @mousemove="graphHover.send(walk, $event)"
-            @mouseleave="graphHover.clear()"
-          >
-            <svg
-              :viewBox="`0 -2 ${walk.elevationGraph.width} ${walk.elevationGraph.height + 4}`"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                :d="walk.elevationGraph.lineString"
-                stroke="var(--color)"
-                stroke-width="4"
-                stroke-linecap="square"
-                stroke-linejoin="round"
-                fill="transparent"
-              />
-            </svg>
-          </div>
-          <p v-if="walk.author">
-            Created by <cite>{{ walk.author }}</cite>
-          </p>
-          <p>{{ walk.description }}</p>
-          <div
-            v-if="useTags"
-            class="tags"
-          >
-            <span
-              v-for="tag of walk.tags"
-              :key="tag"
-              class="tag"
-              @click="tagFilter = tag"
-            >
-              {{ tag }}
-            </span>
-          </div>
-          <p class="download">
-            <a
-              :href="walk.filename"
-              download
-            >
-              GPX
-              <icon
-                inline
-                large
-              >get_app</icon>
-            </a>
-          </p>
-        </div>
-      </li>
+        :walk="walk"
+        :use-tags="useTags"
+        :selected="selected && walk.index === selected.index"
+        @select="select(walk)"
+        @hover-point="hoverPoint($event)"
+        @update:tagFilter="tagFilter = $event"
+      />
       <li
         v-if="tagFilter"
         class="dummy"
@@ -159,6 +102,7 @@ import {
 import Walk from "@/interfaces/Walk";
 import Icon from "./Icon.vue";
 import Dropdown from "./Dropdown.vue";
+import SidebarWalk from "./SidebarWalk.vue";
 
 // Find only the keys of an object with a given value type
 // source: https://medium.com/dailyjs/typescript-create-a-condition-based-subset-types-9d902cea5b8c
@@ -212,7 +156,7 @@ function throttle<T extends any[]>(
 }
 
 @Component({
-  components: { Icon, Dropdown },
+  components: { Icon, Dropdown, SidebarWalk },
 })
 export default class Sidebar extends Vue {
   @Prop({ default: () => [] }) walks!: Walk[];
@@ -315,46 +259,6 @@ $minimised-width: 5rem;
       padding: 1em;
       border-radius: 0.5em;
       background-color: var(--background-slight);
-
-      &.walk {
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
-
-        &.selected {
-          background-color: var(--background-strong);
-          cursor: unset;
-          scroll-margin: 4em;
-        }
-
-        h3 {
-          position: sticky;
-          top: 0;
-          background: inherit;
-        }
-
-        h3,
-        p {
-          margin: 0;
-          padding: 0.25em 0;
-        }
-
-        .tags {
-          .tag {
-            @include tablet.full;
-            cursor: pointer;
-          }
-        }
-
-        .download {
-          text-align: end;
-
-          a {
-            color: var(--color) !important;
-            text-decoration: none;
-          }
-        }
-      }
 
       &.dummy {
         display: flex;

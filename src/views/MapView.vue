@@ -29,6 +29,7 @@ import Sidebar from "@/components/Sidebar.vue";
 import Help from "@/components/Help.vue";
 import Upload from "@/components/Upload.vue";
 import Walk, { PointOnLine } from "@/interfaces/Walk";
+import { tagComparator } from "@/utils/comparators";
 
 @Component({
   components: {
@@ -85,12 +86,13 @@ export default class MapView extends Vue {
   }
 
   /**
-   * Get all the tags, sorted in alphabetical order
+   * Get all the tags, sorted in alphabetical order,
+   * with entries with colons first and then capital letters first.
    */
   get allTags() {
     return Array.from(
       new Set(this.walks.flatMap((walk) => walk.tags ?? [])),
-    ).sort((a, b) => a.localeCompare(b));
+    ).sort(tagComparator);
   }
 
   @Prop(Boolean) showHelp!: boolean;
