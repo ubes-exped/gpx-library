@@ -1,95 +1,3 @@
-<template>
-  <div
-    class="sidebar"
-    :class="{ minimised }"
-  >
-    <div class="top-box">
-      <div class="controls">
-        <label class="control">
-          Sort:
-          <Dropdown
-            v-model="sortType"
-            class="select-wrapper"
-            :options="sortOptions"
-          />
-        </label>
-        <label
-          v-if="useTags"
-          class="control"
-        >
-          Filter:
-          <Dropdown
-            v-model="tagFilter"
-            blank-value=""
-            blank-label="Show all"
-            class="dropdown"
-            :options="allTags.map(tag => ({ value: tag, label: tag }))"
-            clear-button
-          />
-        </label>
-      </div>
-      <a
-        href="https://ubes.co.uk"
-        target="_blank"
-      >
-        <img
-          class="logo"
-          src="/ubes-logo.svg"
-        >
-      </a>
-    </div>
-    <div class="minimised-message map">
-      <p><Icon>map</Icon></p>
-      <p>Map</p>
-    </div>
-    <div class="minimised-message">
-      <p><Icon>arrow_back</Icon></p>
-      <p>Back</p>
-    </div>
-    <ul>
-      <SidebarWalk
-        v-for="walk of sortedWalks"
-        :key="walk.index"
-        :walk="walk"
-        :use-tags="useTags"
-        :selected="selected && walk.index === selected.index"
-        @select="select(walk)"
-        @hover-point="hoverPoint($event)"
-        @update:tagFilter="tagFilter = $event"
-      />
-      <li
-        v-if="tagFilter"
-        class="dummy"
-      >
-        <p>
-          Only showing routes tagged as <span class="tag">{{ tagFilter }}</span>
-        </p>
-        <button @click="tagFilter = ''">
-          Show all
-        </button>
-      </li>
-    </ul>
-    <div class="info">
-      <router-link
-        :to="{ name: 'About' }"
-      >
-        <span class="copy">UBES 2025</span>
-        <span class="link-text">Help/About</span>
-      </router-link>
-      <router-link
-        :to="{ name: 'Upload' }"
-      >
-        <span class="link-text">Contribute</span>
-      </router-link>
-    </div>
-    <div
-      class="overlay"
-      @click="minimised = !minimised"
-      @wheel="minimised = true"
-    />
-  </div>
-</template>
-
 <script lang="ts">
 import {
   Component,
@@ -224,6 +132,98 @@ export default class Sidebar extends Vue {
   );
 }
 </script>
+
+<template>
+  <div
+    class="sidebar"
+    :class="{ minimised }"
+  >
+    <div class="top-box">
+      <div class="controls">
+        <label class="control">
+          Sort:
+          <Dropdown
+            v-model="sortType"
+            class="select-wrapper"
+            :options="sortOptions"
+          />
+        </label>
+        <label
+          v-if="useTags"
+          class="control"
+        >
+          Filter:
+          <Dropdown
+            v-model="tagFilter"
+            blank-value=""
+            blank-label="Show all"
+            class="dropdown"
+            :options="allTags.map(tag => ({ value: tag, label: tag }))"
+            clear-button
+          />
+        </label>
+      </div>
+      <a
+        href="https://ubes.co.uk"
+        target="_blank"
+      >
+        <img
+          class="logo"
+          src="/ubes-logo.svg"
+        >
+      </a>
+    </div>
+    <div class="minimised-message map">
+      <p><Icon>map</Icon></p>
+      <p>Map</p>
+    </div>
+    <div class="minimised-message">
+      <p><Icon>arrow_back</Icon></p>
+      <p>Back</p>
+    </div>
+    <ul>
+      <SidebarWalk
+        v-for="walk of sortedWalks"
+        :key="walk.index"
+        :walk="walk"
+        :use-tags="useTags"
+        :selected="selected && walk.index === selected.index"
+        @select="select(walk)"
+        @hover-point="hoverPoint($event)"
+        @update:tagFilter="tagFilter = $event"
+      />
+      <li
+        v-if="tagFilter"
+        class="dummy"
+      >
+        <p>
+          Only showing routes tagged as <span class="tag">{{ tagFilter }}</span>
+        </p>
+        <button @click="tagFilter = ''">
+          Show all
+        </button>
+      </li>
+    </ul>
+    <div class="info">
+      <router-link
+        :to="{ name: 'About' }"
+      >
+        <span class="copy">UBES 2025</span>
+        <span class="link-text">Help/About</span>
+      </router-link>
+      <router-link
+        :to="{ name: 'Upload' }"
+      >
+        <span class="link-text">Contribute</span>
+      </router-link>
+    </div>
+    <div
+      class="overlay"
+      @click="minimised = !minimised"
+      @wheel="minimised = true"
+    />
+  </div>
+</template>
 
 <style lang="scss">
 @use 'src/styles/tablet';

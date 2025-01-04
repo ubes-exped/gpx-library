@@ -1,11 +1,3 @@
-<template>
-  <i
-    class="material-icons"
-    :class="{ inline, large, placeholder, bottom }"
-    v-on="$listeners"
-  >{{ generated }}<slot /></i>
-</template>
-
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
@@ -26,6 +18,14 @@ export default class Icon extends Vue {
   }
 }
 </script>
+
+<template>
+  <i
+    class="material-icons"
+    :class="{ inline, large, placeholder, bottom }"
+    v-on="$listeners"
+  >{{ generated }}<slot /></i>
+</template>
 
 <style lang="scss">
 .material-icons {

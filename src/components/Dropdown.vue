@@ -1,3 +1,34 @@
+<script lang="ts">
+import {
+  Component, ModelSync, Prop, Vue,
+} from "vue-property-decorator";
+import Icon from "./Icon.vue";
+
+@Component({ components: { Icon } })
+export default class Dropdown extends Vue {
+  @ModelSync("value", "input") model!: string;
+
+  @Prop({ default: null }) blankValue!: string | null;
+
+  @Prop({ default: null }) blankLabel!: string | null;
+
+  @Prop(Boolean) clearButton!: boolean;
+
+  @Prop({ type: Array, required: true }) options!: {
+    value: string;
+    label: string;
+  }[];
+
+  get selectedLabel(): string {
+    return (
+      this.options.find((option) => option.value === this.model)?.label
+      ?? this.blankLabel
+      ?? ""
+    );
+  }
+}
+</script>
+
 <template>
   <div class="dropdown">
     <select v-model="model">
@@ -38,37 +69,6 @@
     </Icon>
   </div>
 </template>
-
-<script lang="ts">
-import {
-  Component, ModelSync, Prop, Vue,
-} from "vue-property-decorator";
-import Icon from "./Icon.vue";
-
-@Component({ components: { Icon } })
-export default class Dropdown extends Vue {
-  @ModelSync("value", "input") model!: string;
-
-  @Prop({ default: null }) blankValue!: string | null;
-
-  @Prop({ default: null }) blankLabel!: string | null;
-
-  @Prop(Boolean) clearButton!: boolean;
-
-  @Prop({ type: Array, required: true }) options!: {
-    value: string;
-    label: string;
-  }[];
-
-  get selectedLabel(): string {
-    return (
-      this.options.find((option) => option.value === this.model)?.label
-      ?? this.blankLabel
-      ?? ""
-    );
-  }
-}
-</script>
 
 <style lang="scss">
 @use 'src/styles/tablet';

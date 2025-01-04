@@ -1,3 +1,17 @@
+<script lang="ts">
+import {
+  Component, Vue,
+} from "vue-property-decorator";
+import Overlay from "./Overlay.vue";
+
+@Component({ components: { Overlay } })
+export default class Upload extends Vue {
+  close() {
+    this.$router.go(-1);
+  }
+}
+</script>
+
 <template>
   <Overlay
     title="Upload new walk"
@@ -44,17 +58,3 @@
     </form>
   </Overlay>
 </template>
-
-<script lang="ts">
-import {
-  Component, Vue,
-} from "vue-property-decorator";
-import Overlay from "./Overlay.vue";
-
-@Component({ components: { Overlay } })
-export default class Upload extends Vue {
-  close() {
-    this.$router.go(-1);
-  }
-}
-</script>

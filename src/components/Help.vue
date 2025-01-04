@@ -1,3 +1,31 @@
+<script lang="ts">
+import {
+  Component, Ref, Vue,
+} from "vue-property-decorator";
+import Overlay from "./Overlay.vue";
+
+@Component({ components: { Overlay } })
+export default class Help extends Vue {
+  @Ref() legalHeader!: HTMLElement;
+
+  close() {
+    this.$router.go(-1);
+  }
+
+  readonly mainSite = "https://www.ubes.co.uk/";
+
+  readonly email = "walks@ubes.co.uk";
+
+  get mailto() {
+    return `mailto:${this.email}`;
+  }
+
+  scrollToBottom() {
+    this.legalHeader.scrollIntoView({ behavior: "smooth" });
+  }
+}
+</script>
+
 <template>
   <Overlay
     title="UBES Walks Library"
@@ -48,34 +76,6 @@
     </p>
   </Overlay>
 </template>
-
-<script lang="ts">
-import {
-  Component, Ref, Vue,
-} from "vue-property-decorator";
-import Overlay from "./Overlay.vue";
-
-@Component({ components: { Overlay } })
-export default class Help extends Vue {
-  @Ref() legalHeader!: HTMLElement;
-
-  close() {
-    this.$router.go(-1);
-  }
-
-  readonly mainSite = "https://www.ubes.co.uk/";
-
-  readonly email = "walks@ubes.co.uk";
-
-  get mailto() {
-    return `mailto:${this.email}`;
-  }
-
-  scrollToBottom() {
-    this.legalHeader.scrollIntoView({ behavior: "smooth" });
-  }
-}
-</script>
 
 <style lang="scss" scoped>
 .legal {

@@ -1,69 +1,3 @@
-<template>
-  <li
-    :key="walk.index"
-    :class="['walk', { selected }]"
-    @click="select()"
-  >
-    <h3>{{ walk.name }}</h3>
-    <p class="stats">
-      ↔︎ {{ walk.distance.toFixed(1) }} km, ↗︎
-      {{ walk.ascent.toFixed(0) }} m
-    </p>
-    <div
-      v-if="selected"
-      class="details"
-    >
-      <div
-        @mousemove="graphHover.send(walk, $event)"
-        @mouseleave="graphHover.clear()"
-      >
-        <svg
-          :viewBox="`0 -2 ${walk.elevationGraph.width} ${walk.elevationGraph.height + 4}`"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            :d="walk.elevationGraph.lineString"
-            stroke="var(--color)"
-            stroke-width="4"
-            stroke-linecap="square"
-            stroke-linejoin="round"
-            fill="transparent"
-          />
-        </svg>
-      </div>
-      <p v-if="walk.author">
-        Created by <cite>{{ walk.author }}</cite>
-      </p>
-      <p>{{ walk.description }}</p>
-      <div
-        v-if="useTags"
-        class="tags"
-      >
-        <span
-          v-for="tag of tags"
-          :key="tag"
-          class="tag"
-          @click="updateTagFilter(tag)"
-        >
-          {{ tag }}
-        </span>
-      </div>
-      <p class="download">
-        <a
-          :href="walk.filename"
-          download
-        >
-          GPX
-          <icon
-            inline
-            large
-          >get_app</icon>
-        </a>
-      </p>
-    </div>
-  </li>
-</template>
-
 <script lang="ts">
 import {
   Component,
@@ -155,6 +89,72 @@ export default class SidebarWalk extends Vue {
   );
 }
 </script>
+
+<template>
+  <li
+    :key="walk.index"
+    :class="['walk', { selected }]"
+    @click="select()"
+  >
+    <h3>{{ walk.name }}</h3>
+    <p class="stats">
+      ↔︎ {{ walk.distance.toFixed(1) }} km, ↗︎
+      {{ walk.ascent.toFixed(0) }} m
+    </p>
+    <div
+      v-if="selected"
+      class="details"
+    >
+      <div
+        @mousemove="graphHover.send(walk, $event)"
+        @mouseleave="graphHover.clear()"
+      >
+        <svg
+          :viewBox="`0 -2 ${walk.elevationGraph.width} ${walk.elevationGraph.height + 4}`"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            :d="walk.elevationGraph.lineString"
+            stroke="var(--color)"
+            stroke-width="4"
+            stroke-linecap="square"
+            stroke-linejoin="round"
+            fill="transparent"
+          />
+        </svg>
+      </div>
+      <p v-if="walk.author">
+        Created by <cite>{{ walk.author }}</cite>
+      </p>
+      <p>{{ walk.description }}</p>
+      <div
+        v-if="useTags"
+        class="tags"
+      >
+        <span
+          v-for="tag of tags"
+          :key="tag"
+          class="tag"
+          @click="updateTagFilter(tag)"
+        >
+          {{ tag }}
+        </span>
+      </div>
+      <p class="download">
+        <a
+          :href="walk.filename"
+          download
+        >
+          GPX
+          <icon
+            inline
+            large
+          >get_app</icon>
+        </a>
+      </p>
+    </div>
+  </li>
+</template>
 
 <style lang="scss" scoped>
 @use 'src/styles/tablet';

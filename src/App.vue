@@ -1,9 +1,3 @@
-<template>
-  <div id="app">
-    <router-view :walks="walks" />
-  </div>
-</template>
-
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
@@ -25,6 +19,12 @@ export default class Home extends Vue {
   }
 }
 </script>
+
+<template>
+  <div id="app">
+    <router-view :walks="walks" />
+  </div>
+</template>
 
 <style>
 :root {

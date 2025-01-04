@@ -1,3 +1,18 @@
+<script lang="ts">
+import {
+  Component, Vue, Emit, Prop,
+} from "vue-property-decorator";
+import Icon from "./Icon.vue";
+
+@Component({ components: { Icon } })
+export default class Overlay extends Vue {
+  @Emit() close() {
+  }
+
+  @Prop({ required: true }) title!: string;
+}
+</script>
+
 <template>
   <div
     class="wrapper"
@@ -24,21 +39,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts">
-import {
-  Component, Vue, Emit, Prop,
-} from "vue-property-decorator";
-import Icon from "./Icon.vue";
-
-@Component({ components: { Icon } })
-export default class Overlay extends Vue {
-  @Emit() close() {
-  }
-
-  @Prop({ required: true }) title!: string;
-}
-</script>
 
 <style lang="scss" scoped>
 .wrapper {

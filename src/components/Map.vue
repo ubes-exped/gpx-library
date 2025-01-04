@@ -1,15 +1,3 @@
-<template>
-  <div
-    ref="container"
-    class="map-container"
-  >
-    <div
-      v-if="isFirstMap"
-      id="map"
-      ref="mapElem"
-    />
-  </div>
-</template>
 <script lang="ts">
 import {
   Component,
@@ -283,6 +271,19 @@ export default class Map extends Vue {
   }
 }
 </script>
+
+<template>
+  <div
+    ref="container"
+    class="map-container"
+  >
+    <div
+      v-if="isFirstMap"
+      id="map"
+      ref="mapElem"
+    />
+  </div>
+</template>
 
 <style>
 .map-container {

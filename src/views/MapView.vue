@@ -1,26 +1,3 @@
-<template>
-  <div class="map-view">
-    <Sidebar
-      :walks="filteredWalks"
-      :selected="selected"
-      :use-tags="useTags"
-      :all-tags="allTags"
-      :filter="tagFilter"
-      @update:filter="updateFilter"
-      @hover-point="hoverPoint"
-    />
-    <Map
-      :center.sync="location"
-      :zoom.sync="zoom"
-      :walks="filteredWalks"
-      :selected="selected"
-      :hovered-point="hoveredPoint"
-    />
-    <Help v-if="showHelp" />
-    <Upload v-if="showUpload" />
-  </div>
-</template>
-
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
@@ -135,6 +112,29 @@ export default class MapView extends Vue {
   }
 }
 </script>
+
+<template>
+  <div class="map-view">
+    <Sidebar
+      :walks="filteredWalks"
+      :selected="selected"
+      :use-tags="useTags"
+      :all-tags="allTags"
+      :filter="tagFilter"
+      @update:filter="updateFilter"
+      @hover-point="hoverPoint"
+    />
+    <Map
+      :center.sync="location"
+      :zoom.sync="zoom"
+      :walks="filteredWalks"
+      :selected="selected"
+      :hovered-point="hoveredPoint"
+    />
+    <Help v-if="showHelp" />
+    <Upload v-if="showUpload" />
+  </div>
+</template>
 
 <style scoped>
 .map-view {
