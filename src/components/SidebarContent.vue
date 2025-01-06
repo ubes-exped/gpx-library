@@ -3,21 +3,23 @@ import type { PointOnLine } from '@/interfaces/Point';
 import type Walk from '@/interfaces/Walk';
 import type { KeysByType } from '@/typings/KeysByType';
 import { computed, nextTick, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import MaterialIcon from './MaterialIcon.vue';
 import DropdownControl from './DropdownControl.vue';
 import SidebarWalk from './SidebarWalk.vue';
 
-const { walks, selected } = defineProps<{
+const { walks, selected, lockFilter, lockContributions } = defineProps<{
   walks: Walk[] | undefined;
   selected?: string;
   allTags?: string[];
+  lockFilter?: boolean;
+  lockContributions?: boolean;
 }>();
 
 const emit = defineEmits<{ hoverPoint: [point: PointOnLine | undefined] }>();
 
 const router = useRouter();
-
+const route = useRoute();
 const tagFilter = defineModel<string>('filter', { default: '' });
 
 let localSelected = selected;
@@ -30,7 +32,11 @@ const sortOptions = [
   { value: '-name', label: 'Alphabetical' },
 ] as const;
 
-const sortType = ref<string>('-distance');
+const sortQuery = typeof route.query.sort === 'string' ? route.query.sort : undefined;
+const resolvedSortQuery = sortQuery
+  ? sortOptions.find((sort) => sortQuery === sort.value)?.value
+  : undefined;
+const sortType = ref<string>(resolvedSortQuery ?? '-distance');
 
 const minimised = ref(false);
 
@@ -84,7 +90,7 @@ watch(
           Sort:
           <DropdownControl v-model="sortType" :options="sortOptions" />
         </label>
-        <label :class="$style.control">
+        <label :class="$style.control" v-if="!lockFilter">
           Filter:
           <!-- TODO: add loading indicator when no filters -->
           <DropdownControl
@@ -115,11 +121,12 @@ watch(
         :key="walk.id"
         :walk="walk"
         :selected="selected !== undefined && walk.id === selected"
+        :lockFilter="lockFilter"
         @select="select(walk)"
         @hover-point="emit('hoverPoint', $event)"
         @set-tag-filter="tagFilter = $event"
       />
-      <li v-if="tagFilter" :class="$style.dummy">
+      <li v-if="tagFilter && !lockFilter" :class="$style.dummy">
         <p>
           Only showing routes tagged as <span :class="$style.tag">{{ tagFilter }}</span>
         </p>
@@ -131,7 +138,7 @@ watch(
         <span :class="$style.copy">UBES 2025</span>
         <span :class="$style.linkText">Help/About</span>
       </router-link>
-      <router-link :to="{ name: 'Upload' }">
+      <router-link :to="{ name: 'Upload' }" v-if="!lockContributions">
         <span :class="$style.linkText">Contribute</span>
       </router-link>
     </div>

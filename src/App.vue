@@ -14,10 +14,14 @@ fetch(routesFile)
     console.error('Error fetching walks', e);
     walks.value = [];
   });
+
+const isEmbedded = window.self !== window.top;
+const lockFilter = !!isEmbedded;
+const lockContributions = !!isEmbedded;
 </script>
 
 <template>
-  <RouterView :walks="walks" />
+  <RouterView :walks="walks" :lockFilter="lockFilter" :lockContributions="lockContributions" />
 </template>
 
 <style>

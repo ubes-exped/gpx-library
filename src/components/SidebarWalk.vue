@@ -6,9 +6,10 @@ import throttle from '@/utils/throttle';
 import { computed } from 'vue';
 import MaterialIcon from './MaterialIcon.vue';
 
-const { walk } = defineProps<{
+const { walk, selected, lockFilter } = defineProps<{
   walk: Walk;
   selected?: boolean;
+  lockFilter?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -60,7 +61,12 @@ const tags = computed(() => walk.tags?.toSorted(tagComparator));
       </p>
       <p>{{ walk.description }}</p>
       <div :class="$style.tags">
-        <span v-for="tag of tags" :key="tag" :class="$style.tag" @click="emit('setTagFilter', tag)">
+        <span
+          v-for="tag of tags"
+          :key="tag"
+          :class="[$style.tag, lockFilter && $style.lockFilter]"
+          @click="!lockFilter && emit('setTagFilter', tag)"
+        >
           {{ tag }}
         </span>
       </div>
@@ -104,6 +110,10 @@ const tags = computed(() => walk.tags?.toSorted(tagComparator));
     .tag {
       @include tablet.full;
       cursor: pointer;
+
+      &.lockFilter {
+        cursor: default;
+      }
     }
   }
 

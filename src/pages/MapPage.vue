@@ -13,9 +13,11 @@ const {
   walks,
   selectedHash,
   filterFromUrl,
-  redirectToFilter = false,
-  showHelp = false,
-  showUpload = false,
+  redirectToFilter,
+  showHelp,
+  showUpload,
+  lockFilter,
+  lockContributions,
 } = defineProps<{
   walks?: Walk[];
   selectedHash?: string;
@@ -23,16 +25,29 @@ const {
   redirectToFilter?: boolean;
   showHelp?: boolean;
   showUpload?: boolean;
+  lockFilter?: boolean;
+  lockContributions?: boolean;
 }>();
 
 const router = useRouter();
 const route = useRoute();
 
-const location = ref<Point>({ lat: 51.45, lng: -2.6 });
+const parseNumberFromUrl = (queryField: string, fallback: number) => {
+  const value = route.query[queryField];
+  if (typeof value !== 'string') return fallback;
+  const parsedValue = parseFloat(value);
+  if (isNaN(parsedValue)) return fallback;
+  return parsedValue;
+};
+
+const location = ref<Point>({
+  lat: parseNumberFromUrl('lat', 51.45),
+  lng: parseNumberFromUrl('lng', -2.6),
+});
 
 const selected = ref<string>();
 
-const zoom = ref(10);
+const zoom = ref(parseNumberFromUrl('z', 10));
 
 const tagFilter = ref('');
 
@@ -43,6 +58,7 @@ watch(
       tagFilter.value = filterFromUrl;
     }
   },
+  { immediate: true },
 );
 
 watch(
@@ -93,9 +109,7 @@ watch(
   { immediate: true },
 );
 
-const MapView = defineAsyncComponent(() =>
-  import('@/components/MapView.vue')
-)
+const MapView = defineAsyncComponent(() => import('@/components/MapView.vue'));
 </script>
 
 <template>
@@ -105,6 +119,8 @@ const MapView = defineAsyncComponent(() =>
       :selected="selected"
       :all-tags="allTags"
       :filter="tagFilter"
+      :lockFilter="lockFilter"
+      :lockContributions="lockContributions"
       @update:filter="updateFilter"
       @hover-point="hoveredPoint = $event"
     />
