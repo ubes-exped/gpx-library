@@ -5,7 +5,7 @@
  * Otherwise, it is called `wait` ms after it was last called, with the most recent values passed
  * to it.
  */
-export default function throttle<T extends any[]>(
+export default function throttle<T extends unknown[]>(
   func: (...args: T) => void,
   onClear?: () => void,
   wait = 100,

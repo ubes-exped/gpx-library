@@ -1,29 +1,23 @@
-<script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
-import Walk, { RawWalk } from "@/interfaces/Walk";
-import { appName, routesFile } from "@/config";
+<script setup lang="ts">
+import { RouterView } from 'vue-router';
+import { routesFile } from './config';
+import type { RawWalk } from './interfaces/Walk';
+import Walk from './interfaces/Walk';
+import { ref } from 'vue';
 
-@Component
-export default class Home extends Vue {
-  appName = appName;
+const walks = ref<Walk[]>();
 
-  walks: Walk[] = [];
-
-  async created() {
-    const walksResponse = await fetch(
-      routesFile,
-    );
-    const rawWalks: RawWalk[] = await walksResponse.json();
-    this.walks = rawWalks.map((walk) => new Walk(walk));
-  }
-}
+fetch(routesFile)
+  .then<RawWalk[]>((walksResponse) => walksResponse.json())
+  .then((rawWalks) => (walks.value = rawWalks.map((walk) => new Walk(walk))))
+  .catch((e: unknown) => {
+    console.error('Error fetching walks', e);
+    walks.value = [];
+  });
 </script>
 
 <template>
-  <div id="app">
-    <router-view :walks="walks" />
-  </div>
+  <RouterView :walks="walks" />
 </template>
 
 <style>
@@ -62,7 +56,7 @@ body {
   }
 }
 
-#app {
+body {
   height: 100%;
   display: flex;
   align-items: stretch;

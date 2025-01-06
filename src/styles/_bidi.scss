@@ -11,10 +11,10 @@
     $position: string.length($last) + 1 !default;
     $last: string.insert($last, $suffix, $position);
     $selector: list.set-nth($selector, $length, $last);
-    $results: append($results, $selector);
+    $results: list.append($results, $selector);
   }
 
-  @return "#{$results}";
+  @return '#{$results}';
 }
 
 @mixin property($left, $right, $value) {
@@ -28,14 +28,15 @@
 @mixin value($property, $left, $right) {
   #{$property}: $left;
 
-
   @at-root #{-bind-to-element(&, ':dir(rtl)')} {
     #{$property}: $right;
   }
 }
 
 @mixin border-radius($inline-start, $inline-end) {
-  @include value(border-radius,
+  @include value(
+    border-radius,
     $inline-start $inline-end $inline-end $inline-start,
-    $inline-end $inline-start $inline-start $inline-end);
+    $inline-end $inline-start $inline-start $inline-end
+  );
 }

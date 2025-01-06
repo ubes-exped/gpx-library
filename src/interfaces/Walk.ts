@@ -1,8 +1,8 @@
-import polyline from "@mapbox/polyline";
-import turfBearing from "@turf/bearing";
-import turfDestination from "@turf/destination";
-import turfDistance from "@turf/distance";
-import { PointOnLine } from "./Point";
+import polyline from '@mapbox/polyline';
+import turfBearing from '@turf/bearing';
+import turfDestination from '@turf/destination';
+import turfDistance from '@turf/distance';
+import type { PointOnLine } from './Point';
 
 export interface RawWalk {
   id: string;
@@ -40,9 +40,6 @@ export default class Walk {
 
   readonly polyline: string;
 
-  /** Needed because Mapbox can only deal with numeric IDs */
-  readonly index: number;
-
   private static counter = 0;
 
   constructor(walk: RawWalk) {
@@ -56,9 +53,6 @@ export default class Walk {
     this.ascent = walk.ascent;
     this.length = walk.length;
     this.polyline = walk.polyline;
-
-    Walk.counter += 1;
-    this.index = Walk.counter;
   }
 
   /** Distance of the walk in kilometres */
@@ -66,11 +60,11 @@ export default class Walk {
     return this.length / 1000;
   }
 
-  #elevationGraph?: {lineString: string, width: number, height: number};
+  private cachedElevationGraph?: { lineString: string; width: number; height: number };
 
   get elevationGraph() {
-    this.#elevationGraph ??= this.makeElevationGraph();
-    return this.#elevationGraph;
+    this.cachedElevationGraph ??= this.makeElevationGraph();
+    return this.cachedElevationGraph;
   }
 
   private makeElevationGraph() {
@@ -83,7 +77,8 @@ export default class Walk {
 
     const { min: minElevation, max: maxElevation } = points.reduce(
       ({ min, max }, [, elevation]) => ({
-        min: Math.min(min, elevation), max: Math.max(max, elevation),
+        min: Math.min(min, elevation),
+        max: Math.max(max, elevation),
       }),
       { min: +Infinity, max: -Infinity },
     );
@@ -98,8 +93,8 @@ export default class Walk {
     const yValue = (elevation: number) => ((maxElevation - elevation) / elevationRange) * height;
     const scale = width / this.length;
     const pathString = points
-      .map(([distance, elevation]) => [distance * scale, yValue(elevation)].join(" "))
-      .join("L");
+      .map(([distance, elevation]) => [distance * scale, yValue(elevation)].join(' '))
+      .join('L');
 
     return { width, height, lineString: `M${pathString}` };
   }
@@ -112,7 +107,7 @@ export default class Walk {
    */
   getOffset(proportion: number): PointOnLine {
     const distanceAlong = proportion * this.distance;
-    // Prev and Next are [lat, lng] pairs, but turf accepts [long, lat].
+    // Prev and Next are [lat, lng] pairs, but turf accepts [lng, lat].
     const line = polyline.decode(this.polyline).map(([lat, lng]) => [lng, lat]);
 
     let travelled = 0;
@@ -120,12 +115,11 @@ export default class Walk {
       if (travelled >= distanceAlong || i + 1 >= line.length) {
         const overshot = travelled - distanceAlong;
 
-        const bearing = i === 0
-          ? turfBearing(line[0], line[1])
-          : turfBearing(line[i - 1], line[i]);
-        const [lng, lat] = overshot > 0
-          ? turfDestination(line[i], -overshot, bearing).geometry?.coordinates ?? line[i]
-          : line[i];
+        const bearing = i === 0 ? turfBearing(line[0], line[1]) : turfBearing(line[i - 1], line[i]);
+        const [lng, lat] =
+          overshot > 0
+            ? turfDestination(line[i], -overshot, bearing).geometry.coordinates
+            : line[i];
         return { lat, lng, bearing };
       }
       travelled += turfDistance(line[i], line[i + 1]);

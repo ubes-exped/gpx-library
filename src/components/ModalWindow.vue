@@ -1,46 +1,29 @@
-<script lang="ts">
-import {
-  Component, Vue, Emit, Prop,
-} from "vue-property-decorator";
-import MaterialIcon from "./MaterialIcon.vue";
+<script setup lang="ts">
+import MaterialIcon from './MaterialIcon.vue';
 
-@Component({ components: { MaterialIcon } })
-export default class Overlay extends Vue {
-  @Emit() close() {
-  }
+defineProps<{ title: string }>();
 
-  @Prop({ required: true }) title!: string;
-}
+const emit = defineEmits<{
+  close: [];
+}>();
 </script>
 
 <template>
-  <div
-    class="wrapper"
-    @click.self="close"
-  >
-    <div class="window">
+  <div :class="$style.wrapper" @click.self="emit('close')">
+    <div :class="$style.window">
       <h1>
-        <MaterialIcon
-          inline
-          class="back"
-          @click="close"
-        >
-          arrow_back
-        </MaterialIcon>
+        <MaterialIcon inline :class="$style.back" @click="emit('close')"> arrow_back </MaterialIcon>
         <span>{{ title }}</span>
-        <MaterialIcon
-          inline
-          placeholder
-        />
+        <MaterialIcon inline placeholder />
       </h1>
-      <div class="scroller">
+      <div :class="$style.scroller">
         <slot />
       </div>
     </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss" module>
 .wrapper {
   position: fixed;
   display: flex;
@@ -69,6 +52,12 @@ export default class Overlay extends Vue {
   flex-direction: column;
   margin: 2em;
 
+  h1 {
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+  }
+
   .scroller {
     overflow-y: auto;
     height: 100%;
@@ -83,11 +72,5 @@ export default class Overlay extends Vue {
     border-radius: 0;
     border: none;
   }
-}
-
-h1 {
-  display: flex;
-  justify-content: space-between;
-  text-align: center;
 }
 </style>

@@ -1,52 +1,31 @@
 <script lang="ts">
-import {
-  Component, ModelSync, Prop, Vue,
-} from "vue-property-decorator";
-import MaterialIcon from "./MaterialIcon.vue";
-
-@Component({ components: { MaterialIcon } })
-export default class Dropdown extends Vue {
-  @ModelSync("value", "input") model!: string;
-
-  @Prop({ default: null }) blankValue!: string | null;
-
-  @Prop({ default: null }) blankLabel!: string | null;
-
-  @Prop(Boolean) clearButton!: boolean;
-
-  @Prop({ type: Array, required: true }) options!: {
-    value: string;
-    label: string;
-  }[];
-
-  get selectedLabel(): string {
-    return (
-      this.options.find((option) => option.value === this.model)?.label
-      ?? this.blankLabel
-      ?? ""
-    );
-  }
+export interface DropdownOption {
+  value: string;
+  label: string;
 }
 </script>
 
+<script setup lang="ts">
+import MaterialIcon from './MaterialIcon.vue';
+
+const model = defineModel<string>();
+
+const { options = [] } = defineProps<{
+  options: readonly DropdownOption[];
+  blankValue?: string;
+  blankLabel?: string;
+  clearButton?: boolean;
+}>();
+</script>
+
 <template>
-  <div class="dropdown">
+  <div :class="$style.dropdown">
     <select v-model="model">
-      <option
-        v-if="blankLabel"
-        :value="blankValue"
-      >
+      <option v-if="blankLabel" :value="blankValue">
         {{ blankLabel }}
       </option>
-      <option
-        v-if="blankLabel"
-        disabled
-      />
-      <option
-        v-for="option in options"
-        :key="option.value"
-        :value="option.value"
-      >
+      <option v-if="blankLabel" disabled />
+      <option v-for="option in options" :key="option.value" :value="option.value">
         {{ option.label }}
       </option>
       <slot />
@@ -59,19 +38,12 @@ export default class Dropdown extends Vue {
     >
       close
     </MaterialIcon>
-    <MaterialIcon
-      v-else
-      class="down-arrow"
-      inline
-      large
-    >
-      expand_more
-    </MaterialIcon>
+    <MaterialIcon v-else :class="$style.downArrow" inline large> expand_more </MaterialIcon>
   </div>
 </template>
 
-<style lang="scss">
-@use 'src/styles/tablet';
+<style lang="scss" module>
+@use '@/styles/tablet';
 
 .dropdown {
   display: inline-flex;
@@ -80,12 +52,12 @@ export default class Dropdown extends Vue {
   max-width: min-content;
   min-width: 3em;
 
-// Hack to prevent zooming on iOS when entering dropdown
-    @media (hover: none) {
-      font-size: 18px;
-    }
+  // Hack to prevent zooming on iOS when entering dropdown
+  @media (hover: none) {
+    font-size: 18px;
+  }
 
-  select {
+  > select {
     flex-shrink: 1;
     min-width: 0;
     padding-inline-start: 1ex;
@@ -104,7 +76,7 @@ export default class Dropdown extends Vue {
     }
   }
 
-  .down-arrow {
+  .downArrow {
     pointer-events: none;
   }
 }

@@ -1,174 +1,135 @@
-<script lang="ts">
-import {
-  Component,
-  Vue,
-  PropSync,
-  Prop,
-  Watch,
-  Emit,
-} from "vue-property-decorator";
-import Walk from "@/interfaces/Walk";
-import throttle from "@/utils/throttle";
-import { KeysByType } from "@/typings/KeysByType";
-import { Point } from "@turf/helpers";
-import { PointOnLine } from "@/interfaces/Point";
-import MaterialIcon from "./MaterialIcon.vue";
-import DropdownControl from "./DropdownControl.vue";
-import SidebarWalk from "./SidebarWalk.vue";
+<script setup lang="ts">
+import type { PointOnLine } from '@/interfaces/Point';
+import type Walk from '@/interfaces/Walk';
+import type { KeysByType } from '@/typings/KeysByType';
+import { computed, nextTick, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import MaterialIcon from './MaterialIcon.vue';
+import DropdownControl from './DropdownControl.vue';
+import SidebarWalk from './SidebarWalk.vue';
 
-@Component({
-  components: { MaterialIcon, DropdownControl, SidebarWalk },
-})
-export default class Sidebar extends Vue {
-  @Prop({ default: () => [] }) walks!: Walk[];
+const { walks, selected } = defineProps<{
+  walks: Walk[] | undefined;
+  selected?: string;
+  allTags?: string[];
+}>();
 
-  @Prop({ default: null }) selected!: Walk | null;
+const emit = defineEmits<{ hoverPoint: [point: PointOnLine | undefined] }>();
 
-  @Prop(Boolean) useTags!: boolean;
+const router = useRouter();
 
-  localSelected: number | null = this.selected?.index ?? null;
+const tagFilter = defineModel<string>('filter', { default: '' });
 
-  sortType = "-distance";
+let localSelected = selected;
 
-  sortOptions = [
-    { value: "+distance", label: "Most distance" },
-    { value: "-distance", label: "Least distance" },
-    { value: "+ascent", label: "Most ascent" },
-    { value: "-ascent", label: "Least ascent" },
-  ];
+const sortOptions = [
+  { value: '+distance', label: 'Most distance' },
+  { value: '-distance', label: 'Least distance' },
+  { value: '+ascent', label: 'Most ascent' },
+  { value: '-ascent', label: 'Least ascent' },
+] as const;
 
-  @PropSync("filter", { default: "" }) tagFilter!: string;
+const sortType = ref<string>('-distance');
 
-  minimised = false;
+const minimised = ref(false);
 
-  select(walk: Walk | null) {
-    if (walk?.index === this.selected?.index) return;
+const select = async (walk: Walk | null) => {
+  if (walk?.id === selected) return;
 
-    this.localSelected = walk?.index ?? null;
+  localSelected = walk?.id;
 
-    if (walk) this.$router.replace({ name: "Walk", params: { id: walk.id } });
-    else this.$router.replace({ name: "MapPage" });
-  }
+  if (walk) await router.replace({ name: 'Walk', params: { id: walk.id } });
+  else await router.replace({ name: 'MapPage' });
+};
 
-  get sortedWalks(): Walk[] {
-    const direction = this.sortType[0] === "-" ? 1 : -1;
-    const field = this.sortType.slice(1) as KeysByType<Walk, number>;
-    return this.walks.sort((a, b) => direction * (a[field] - b[field]));
-  }
+const sortedWalks = computed(() => {
+  const direction = sortType.value.startsWith('-') ? 1 : -1;
+  const field = sortType.value.slice(1) as KeysByType<Walk, number>;
+  return walks?.slice().sort((a, b) => direction * (a[field] - b[field])) ?? [];
+});
 
-  @Prop({ default: undefined }) allTags?: string[];
+const sidebarItemListRef = ref<HTMLElement>();
 
-  @Watch("selected") async onSelected(selected: number | null) {
-    if (selected !== this.localSelected) {
-      this.localSelected = selected;
-      if (selected) this.minimised = false;
-      await this.$nextTick();
-      const el = this.$el.querySelector(".selected");
-      if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
-    }
-  }
+watch(
+  () => selected,
+  async (selected) => {
+    if (selected === localSelected) return;
 
-  @Emit("hover-point") hoverPoint(point?: PointOnLine) {
-    return point;
-  }
-}
+    localSelected = selected;
+    if (selected) minimised.value = false;
+    await nextTick();
+    const el = sidebarItemListRef.value?.querySelector('.selected');
+    if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  },
+);
 </script>
 
 <template>
-  <div
-    class="sidebar"
-    :class="{ minimised }"
-  >
-    <div class="top-box">
-      <div class="controls">
-        <label class="control">
+  <div :class="[$style.sidebar, minimised && $style.minimised]">
+    <div :class="$style.topBox">
+      <div :class="$style.controls">
+        <label :class="$style.control">
           Sort:
-          <DropdownControl
-            v-model="sortType"
-            class="select-wrapper"
-            :options="sortOptions"
-          />
+          <DropdownControl v-model="sortType" :options="sortOptions" />
         </label>
-        <label
-          v-if="useTags"
-          class="control"
-        >
+        <label :class="$style.control">
           Filter:
+          <!-- TODO: add loading indicator when no filters -->
           <DropdownControl
             v-model="tagFilter"
             blank-value=""
             blank-label="Show all"
-            class="dropdownControl"
-            :options="allTags.map(tag => ({ value: tag, label: tag }))"
+            :class="$style.dropdownControl"
+            :options="allTags?.map((tag) => ({ value: tag, label: tag })) ?? []"
             clear-button
           />
         </label>
       </div>
-      <a
-        href="https://ubes.co.uk"
-        target="_blank"
-      >
-        <img
-          class="logo"
-          src="/ubes-logo.svg"
-        >
+      <a href="https://ubes.co.uk" target="_blank">
+        <img :class="$style.logo" src="/ubes-logo.svg" />
       </a>
     </div>
-    <div class="minimised-message map">
+    <div :class="[$style.minimisedMessage, $style.map]">
       <p><MaterialIcon>map</MaterialIcon></p>
       <p>Map</p>
     </div>
-    <div class="minimised-message">
+    <div :class="$style.minimisedMessage">
       <p><MaterialIcon>arrow_back</MaterialIcon></p>
       <p>Back</p>
     </div>
-    <ul>
+    <ul ref="sidebarItemListRef">
       <SidebarWalk
         v-for="walk of sortedWalks"
-        :key="walk.index"
+        :key="walk.id"
         :walk="walk"
-        :use-tags="useTags"
-        :selected="selected && walk.index === selected.index"
+        :selected="selected !== undefined && walk.id === selected"
         @select="select(walk)"
-        @hover-point="hoverPoint($event)"
-        @update:tagFilter="tagFilter = $event"
+        @hover-point="emit('hoverPoint', $event)"
+        @set-tag-filter="tagFilter = $event"
       />
-      <li
-        v-if="tagFilter"
-        class="dummy"
-      >
+      <li v-if="tagFilter" :class="$style.dummy">
         <p>
-          Only showing routes tagged as <span class="tag">{{ tagFilter }}</span>
+          Only showing routes tagged as <span :class="$style.tag">{{ tagFilter }}</span>
         </p>
-        <button @click="tagFilter = ''">
-          Show all
-        </button>
+        <button @click="tagFilter = ''">Show all</button>
       </li>
     </ul>
-    <div class="info">
-      <router-link
-        :to="{ name: 'About' }"
-      >
-        <span class="copy">UBES 2025</span>
-        <span class="link-text">Help/About</span>
+    <div :class="$style.info">
+      <router-link :to="{ name: 'About' }">
+        <span :class="$style.copy">UBES 2025</span>
+        <span :class="$style.linkText">Help/About</span>
       </router-link>
-      <router-link
-        :to="{ name: 'Upload' }"
-      >
-        <span class="link-text">Contribute</span>
+      <router-link :to="{ name: 'Upload' }">
+        <span :class="$style.linkText">Contribute</span>
       </router-link>
     </div>
-    <div
-      class="overlay"
-      @click="minimised = !minimised"
-      @wheel="minimised = true"
-    />
+    <div :class="$style.overlay" @click="minimised = !minimised" @wheel="minimised = true" />
   </div>
 </template>
 
-<style lang="scss">
-@use 'src/styles/tablet';
-@use 'src/styles/bidi';
+<style lang="scss" module>
+@use '@/styles/tablet';
+@use '@/styles/bidi';
 
 $max-sidebar-width: calc(100vw - 6rem);
 $sidebar-width: 25rem;
@@ -219,7 +180,7 @@ $minimised-width: 5rem;
   }
 }
 
-.top-box {
+.topBox {
   padding: 2vh 1em;
   display: flex;
   align-items: center;
@@ -234,8 +195,9 @@ $minimised-width: 5rem;
     filter: #{invert }(var(--invert));
     align-self: stretch;
     max-height: 100%;
-    max-width: #{"min" }(20vw, $sidebar-width - 2rem);
-    transition: max-width var(--transition-speed),
+    max-width: #{'min' }(20vw, $sidebar-width - 2rem);
+    transition:
+      max-width var(--transition-speed),
       margin var(--transition-speed);
     margin-inline-start: 0;
   }
@@ -269,18 +231,18 @@ $minimised-width: 5rem;
 
   .copy {
     &::before {
-      content: "© ";
+      content: '© ';
     }
     &::after {
-      content: " • ";
+      content: ' • ';
     }
   }
 
   > a:not(:last-child)::after {
-    content: " • ";
+    content: ' • ';
   }
 
-  .link-text {
+  .linkText {
     text-decoration: underline;
   }
 }
@@ -290,7 +252,7 @@ $minimised-width: 5rem;
   cursor: pointer;
 }
 
-.minimised-message {
+.minimisedMessage {
   height: 5rem;
   background: var(--background);
   width: $minimised-width;
@@ -314,7 +276,7 @@ $minimised-width: 5rem;
     &::before,
     &::after {
       position: absolute;
-      content: "";
+      content: '';
       height: 2em;
       @include bidi.property(left, right, 0);
       width: 1em;
@@ -323,20 +285,12 @@ $minimised-width: 5rem;
     &::before {
       bottom: 100%;
       box-shadow: 0 1em 0 0 var(--background);
-      @include bidi.property(
-        border-bottom-left-radius,
-        border-bottom-right-radius,
-        1em
-      );
+      @include bidi.property(border-bottom-left-radius, border-bottom-right-radius, 1em);
     }
     &::after {
       top: 100%;
       box-shadow: 0 -1em 0 0 var(--background);
-      @include bidi.property(
-        border-top-left-radius,
-        border-top-right-radius,
-        1em
-      );
+      @include bidi.property(border-top-left-radius, border-top-right-radius, 1em);
     }
   }
 }
@@ -354,9 +308,7 @@ $minimised-width: 5rem;
 
   .sidebar {
     $sidebar-overlap-fallback: -20rem;
-    $sidebar-overlap: calc(
-      #{$minimised-width} - min(#{$sidebar-width}, #{$max-sidebar-width})
-    );
+    $sidebar-overlap: calc(#{$minimised-width} - min(#{$sidebar-width}, #{$max-sidebar-width}));
 
     margin-inline-end: $sidebar-overlap-fallback;
     margin-inline-end: $sidebar-overlap;
@@ -371,7 +323,7 @@ $minimised-width: 5rem;
         margin-inline-end: $minimised-width;
       }
 
-      .top-box .logo {
+      .topBox .logo {
         $minimised-padding: 1rem;
 
         margin-inline-start: $minimised-padding;
@@ -388,7 +340,7 @@ $minimised-width: 5rem;
       }
     }
 
-    &:not(.minimised) .minimised-message.map {
+    &:not(.minimised) .minimisedMessage.map {
       margin-inline-end: -$minimised-width;
     }
   }

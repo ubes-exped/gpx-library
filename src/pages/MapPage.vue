@@ -1,135 +1,118 @@
-<script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
-import { Prop, Watch } from "vue-property-decorator";
-import SidebarContent from "@/components/SidebarContent.vue";
-import HelpModal from "@/components/HelpModal.vue";
-import UploadModal from "@/components/UploadModal.vue";
-import Walk from "@/interfaces/Walk";
-import { tagComparator } from "@/utils/comparators";
-import { PointOnLine } from "@/interfaces/Point";
+<script setup lang="ts">
+import HelpModal from '@/components/HelpModal.vue';
+import SidebarContent from '@/components/SidebarContent.vue';
+import UploadModal from '@/components/UploadModal.vue';
+import type { Point, PointOnLine } from '@/interfaces/Point';
+import type Walk from '@/interfaces/Walk';
 
-@Component({
-  components: {
-    MapView: () => import(/* webpackChunkName: "map" */ "@/components/MapView.vue"),
-    SidebarContent,
-    HelpModal,
-    UploadModal,
-  },
-})
-export default class MapPage extends Vue {
-  @Prop() walks!: Walk[];
+import { tagComparator } from '@/utils/comparators';
+import { computed, defineAsyncComponent, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
-  location = { lat: 51.45, lng: -2.6 };
+const {
+  walks,
+  selectedHash,
+  filterFromUrl,
+  redirectToFilter = false,
+  showHelp = false,
+  showUpload = false,
+} = defineProps<{
+  walks?: Walk[];
+  selectedHash?: string;
+  filterFromUrl?: string;
+  redirectToFilter?: boolean;
+  showHelp?: boolean;
+  showUpload?: boolean;
+}>();
 
-  @Prop({ default: null }) selectedHash!: string | null;
+const router = useRouter();
+const route = useRoute();
 
-  selected: Walk | null = null;
+const location = ref<Point>({ lat: 51.45, lng: -2.6 });
 
-  zoom = 10;
+const selected = ref<string>();
 
-  useTags = true;
+const zoom = ref(10);
 
-  tagFilter = "";
+const tagFilter = ref('');
 
-  @Prop() filterFromUrl?: string;
-
-  @Prop({ default: false }) redirectToFilter = false;
-
-  @Watch("filterFromUrl", { immediate: true })
-  updateFilterFromUrl(filterFromUrl: string | undefined) {
+watch(
+  () => filterFromUrl,
+  () => {
     if (filterFromUrl !== undefined) {
-      this.tagFilter = filterFromUrl;
+      tagFilter.value = filterFromUrl;
     }
+  },
+);
+
+watch(
+  () => redirectToFilter,
+  async () => {
+    if (redirectToFilter) await performRedirectToFilter();
+  },
+);
+
+const performRedirectToFilter = () =>
+  router.replace({
+    name: tagFilter.value ? 'Filter' : 'MapPage',
+    params: { ...route.params, filter: tagFilter.value },
+  });
+
+const filteredWalks = computed(() => {
+  if (!tagFilter.value) return walks ?? [];
+
+  return walks?.filter((walk) => walk.tags?.includes(tagFilter.value)) ?? [];
+});
+
+watch(filteredWalks, (filtered) => {
+  if (selected.value && !filtered.find((walk) => walk.id === selected.value)) {
+    selected.value = undefined;
   }
+});
 
-  @Watch("redirectToFilter")
-  performRedirectToFilter(redirectToFilter: boolean) {
-    if (redirectToFilter) {
-      this.$router.replace({ name: this.tagFilter ? "Filter" : "MapPage", params: { ...this.$route.params, filter: this.tagFilter } });
-    }
-  }
+const allTags = computed(
+  () => walks && Array.from(new Set(walks.flatMap((walk) => walk.tags ?? []))).sort(tagComparator),
+);
 
-  get filteredWalks(): Walk[] {
-    if (!this.tagFilter || !this.useTags) return this.walks;
+const hoveredPoint = ref<PointOnLine>();
 
-    const filtered = this.walks.filter((walk) => walk.tags?.includes(this.tagFilter));
-    if (
-      this.selected
-      && !filtered.find((walk) => walk.index === this.selected?.index)
-    ) {
-      this.selected = null;
-    }
-    return filtered;
-  }
+const updateFilter = async (filter: string) => {
+  tagFilter.value = filter;
+  if (filterFromUrl !== undefined) await performRedirectToFilter();
+};
 
-  /**
-   * Get all the tags, sorted in alphabetical order,
-   * with entries with colons first and then capital letters first.
-   */
-  get allTags() {
-    return Array.from(
-      new Set(this.walks.flatMap((walk) => walk.tags ?? [])),
-    ).sort(tagComparator);
-  }
-
-  @Prop(Boolean) showHelp!: boolean;
-
-  @Prop(Boolean) showUpload!: boolean;
-
-  hoveredPoint: PointOnLine | null = null;
-
-  hoverPoint(point?: PointOnLine) {
-    this.hoveredPoint = point ?? null;
-  }
-
-  updateFilter(filter: string) {
-    this.tagFilter = filter;
-    if (this.filterFromUrl !== undefined) {
-      this.performRedirectToFilter(true);
-    }
-  }
-
-  @Watch("selectedHash") @Watch("walks", { immediate: true }) onWalks() {
-    const browserSelected = this.selectedHash;
-    if (browserSelected) {
-      this.selected = this.walks.find((walk) => walk.id === browserSelected) ?? null;
+watch(
+  () => [selectedHash, walks],
+  () => {
+    if (selectedHash && walks?.some((walk) => walk.id === selectedHash)) {
+      selected.value = selectedHash;
     } else {
-      this.selected = null;
+      selected.value = undefined;
     }
-  }
+  },
+  { immediate: true },
+);
 
-  hashchangeListener?: () => void;
-
-  mounted() {
-    this.hashchangeListener = () => this.onWalks();
-    window.addEventListener("hashchange", this.hashchangeListener);
-  }
-
-  beforeDestroy() {
-    if (this.hashchangeListener) {
-      window.removeEventListener("hashchange", this.hashchangeListener);
-    }
-  }
-}
+const MapView = defineAsyncComponent(() =>
+  import('@/components/MapView.vue')
+)
 </script>
 
 <template>
-  <div class="map-view">
+  <div :class="$style.mapPage">
     <SidebarContent
       :walks="filteredWalks"
       :selected="selected"
-      :use-tags="useTags"
       :all-tags="allTags"
       :filter="tagFilter"
       @update:filter="updateFilter"
-      @hover-point="hoverPoint"
+      @hover-point="hoveredPoint = $event"
     />
     <MapView
-      :center.sync="location"
-      :zoom.sync="zoom"
+      v-model:center="location"
+      v-model:zoom="zoom"
+      v-model:selected="selected"
       :walks="filteredWalks"
-      :selected="selected"
       :hovered-point="hoveredPoint"
     />
     <HelpModal v-if="showHelp" />
@@ -137,8 +120,8 @@ export default class MapPage extends Vue {
   </div>
 </template>
 
-<style scoped>
-.map-view {
+<style module>
+.mapPage {
   display: flex;
   flex-direction: row;
   flex: 1;

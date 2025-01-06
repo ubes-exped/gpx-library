@@ -1,74 +1,46 @@
-<script lang="ts">
-import {
-  Component,
-  Vue,
-  Prop,
-  Emit,
-} from "vue-property-decorator";
-import Walk from "@/interfaces/Walk";
-import { tagComparator } from "@/utils/comparators";
-import MaterialIcon from "./MaterialIcon.vue";
-import throttle from "../utils/throttle";
-import { PointOnLine } from "@/interfaces/Point";
+<script setup lang="ts">
+import type { PointOnLine } from '@/interfaces/Point';
+import type Walk from '@/interfaces/Walk';
+import { tagComparator } from '@/utils/comparators';
+import throttle from '@/utils/throttle';
+import { computed } from 'vue';
+import MaterialIcon from './MaterialIcon.vue';
 
-@Component({
-  components: { MaterialIcon },
-})
-export default class SidebarWalk extends Vue {
-  @Prop({ required: true }) walk!: Walk;
+const { walk } = defineProps<{
+  walk: Walk;
+  selected?: boolean;
+}>();
 
-  @Prop(Boolean) selected!: boolean;
+const emit = defineEmits<{
+  select: [];
+  hoverPoint: [point: PointOnLine | undefined];
+  setTagFilter: [tagFilter: string];
+}>();
 
-  @Prop(Boolean) useTags!: boolean;
+const graphHover = throttle(
+  (walk: Walk, event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    const box = target.getBoundingClientRect();
+    const offset = (event.clientX - box.x) / box.width;
+    const point = walk.getOffset(offset);
+    emit('hoverPoint', point);
+  },
+  () => {
+    emit('hoverPoint', undefined);
+  },
+);
 
-  @Emit("select") select() {
-  }
-
-  @Emit("hover-point") hoverPoint(point?: PointOnLine) {
-    return point;
-  }
-
-  @Emit("update:tagFilter") updateTagFilter(tagFilter: string) {
-    return tagFilter;
-  }
-
-  get tags() {
-    return Array.from(this.walk.tags ?? []).sort(tagComparator);
-  }
-
-  graphHover = throttle(
-    (walk: Walk, event: MouseEvent) => {
-      if (!walk || !event) return;
-      const target = event.target as HTMLElement;
-      const box = target.getBoundingClientRect();
-      const offset = (event.clientX - box.x) / box.width;
-      const point = walk.getOffset(offset);
-      this.hoverPoint(point);
-    },
-    () => this.hoverPoint(),
-  );
-}
+const tags = computed(() => walk.tags?.toSorted(tagComparator));
 </script>
 
 <template>
-  <li
-    :key="walk.index"
-    :class="['walk', { selected }]"
-    @click="select()"
-  >
+  <li :key="walk.id" :class="[$style.walk, selected && $style.selected]" @click="emit('select')">
     <h3>{{ walk.name }}</h3>
-    <p class="stats">
-      ↔︎ {{ walk.distance.toFixed(1) }} km, ↗︎
-      {{ walk.ascent.toFixed(0) }} m
+    <p :class="$style.stats">
+      ↔︎ {{ walk.distance.toFixed(1) }} km, ↗︎ {{ walk.ascent.toFixed(0) }} m
     </p>
-    <div
-      v-if="selected"
-      class="details"
-    >
-      <div
-        @mousemove="graphHover.send(walk, $event)"
-        @mouseleave="graphHover.clear()"
-      >
+    <div v-if="selected" :class="$style.details">
+      <div @mousemove="graphHover.send(walk, $event)" @mouseleave="graphHover.clear()">
         <svg
           :viewBox="`0 -2 ${walk.elevationGraph.width} ${walk.elevationGraph.height + 4}`"
           xmlns="http://www.w3.org/2000/svg"
@@ -87,37 +59,23 @@ export default class SidebarWalk extends Vue {
         Created by <cite>{{ walk.author }}</cite>
       </p>
       <p>{{ walk.description }}</p>
-      <div
-        v-if="useTags"
-        class="tags"
-      >
-        <span
-          v-for="tag of tags"
-          :key="tag"
-          class="tag"
-          @click="updateTagFilter(tag)"
-        >
+      <div :class="$style.tags">
+        <span v-for="tag of tags" :key="tag" :class="$style.tag" @click="emit('setTagFilter', tag)">
           {{ tag }}
         </span>
       </div>
-      <p class="download">
-        <a
-          :href="walk.filename"
-          download
-        >
+      <p :class="$style.download">
+        <a :href="walk.filename" download>
           GPX
-          <MaterialIcon
-            inline
-            large
-          >get_app</MaterialIcon>
+          <MaterialIcon inline large>get_app</MaterialIcon>
         </a>
       </p>
     </div>
   </li>
 </template>
 
-<style lang="scss" scoped>
-@use 'src/styles/tablet';
+<style lang="scss" module>
+@use '@/styles/tablet';
 
 .walk {
   cursor: pointer;
