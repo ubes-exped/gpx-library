@@ -3,6 +3,10 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import ModalWindow from './ModalWindow.vue';
 
+const { lockFilter } = defineProps<{
+  lockFilter?: boolean;
+}>();
+
 const legalHeader = ref<HTMLElement>();
 
 const router = useRouter();
@@ -31,7 +35,11 @@ const close = () => {
     </p>
 
     <h2>How it works</h2>
-    <p>
+    <p v-if="lockFilter">
+      Use the sidebar to view a list of routes, all supplied by keen UBESters. There is a control at
+      the top to sort the list.
+    </p>
+    <p v-else>
       Use the sidebar to view a list of routes, all supplied by keen UBESters. There are controls at
       the top to sort and filter the list.
     </p>

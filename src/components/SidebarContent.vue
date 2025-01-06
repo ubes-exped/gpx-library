@@ -8,12 +8,13 @@ import MaterialIcon from './MaterialIcon.vue';
 import DropdownControl from './DropdownControl.vue';
 import SidebarWalk from './SidebarWalk.vue';
 
-const { walks, selected, lockFilter, lockContributions } = defineProps<{
+const { walks, selected, lockFilter, lockContributions, showFullLink } = defineProps<{
   walks: Walk[] | undefined;
   selected?: string;
   allTags?: string[];
   lockFilter?: boolean;
   lockContributions?: boolean;
+  showFullLink?: boolean;
 }>();
 
 const emit = defineEmits<{ hoverPoint: [point: PointOnLine | undefined] }>();
@@ -138,9 +139,12 @@ watch(
         <span :class="$style.copy">UBES 2025</span>
         <span :class="$style.linkText">Help/About</span>
       </router-link>
-      <router-link :to="{ name: 'Upload' }" v-if="!lockContributions">
+      <router-link v-if="!lockContributions" :to="{ name: 'Upload' }">
         <span :class="$style.linkText">Contribute</span>
       </router-link>
+      <a v-if="showFullLink" href="/" target="_blank">
+        <span :class="$style.linkText">Full library</span>
+      </a>
     </div>
     <div :class="$style.overlay" @click="minimised = !minimised" @wheel="minimised = true" />
   </div>

@@ -52,7 +52,7 @@ if (!window.cachedMapElement) {
     zoom: zoom.value,
   });
 
-  newMap.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+  newMap.addControl(new mapboxgl.FullscreenControl({ container: document.body }), 'top-right');
   newMap.addControl(
     new mapboxgl.NavigationControl({ showZoom: false, visualizePitch: true }),
     'bottom-left',

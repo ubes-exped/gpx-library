@@ -18,6 +18,7 @@ const {
   showUpload,
   lockFilter,
   lockContributions,
+  showFullLink,
 } = defineProps<{
   walks?: Walk[];
   selectedHash?: string;
@@ -27,6 +28,7 @@ const {
   showUpload?: boolean;
   lockFilter?: boolean;
   lockContributions?: boolean;
+  showFullLink?: boolean;
 }>();
 
 const router = useRouter();
@@ -121,6 +123,7 @@ const MapView = defineAsyncComponent(() => import('@/components/MapView.vue'));
       :filter="tagFilter"
       :lockFilter="lockFilter"
       :lockContributions="lockContributions"
+      :showFullLink="showFullLink"
       @update:filter="updateFilter"
       @hover-point="hoveredPoint = $event"
     />
@@ -131,7 +134,7 @@ const MapView = defineAsyncComponent(() => import('@/components/MapView.vue'));
       :walks="filteredWalks"
       :hovered-point="hoveredPoint"
     />
-    <HelpModal v-if="showHelp" />
+    <HelpModal v-if="showHelp" :lockFilter="lockFilter" />
     <UploadModal v-if="showUpload" />
   </div>
 </template>

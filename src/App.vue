@@ -16,12 +16,15 @@ fetch(routesFile)
   });
 
 const isEmbedded = window.self !== window.top;
-const lockFilter = !!isEmbedded;
-const lockContributions = !!isEmbedded;
 </script>
 
 <template>
-  <RouterView :walks="walks" :lockFilter="lockFilter" :lockContributions="lockContributions" />
+  <RouterView
+    :walks="walks"
+    :lockFilter="isEmbedded"
+    :lockContributions="isEmbedded"
+    :showFullLink="isEmbedded"
+  />
 </template>
 
 <style>
