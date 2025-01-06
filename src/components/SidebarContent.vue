@@ -27,6 +27,7 @@ const sortOptions = [
   { value: '-distance', label: 'Least distance' },
   { value: '+ascent', label: 'Most ascent' },
   { value: '-ascent', label: 'Least ascent' },
+  { value: '-name', label: 'Alphabetical' },
 ] as const;
 
 const sortType = ref<string>('-distance');
@@ -44,8 +45,19 @@ const select = async (walk: Walk | null) => {
 
 const sortedWalks = computed(() => {
   const direction = sortType.value.startsWith('-') ? 1 : -1;
-  const field = sortType.value.slice(1) as KeysByType<Walk, number>;
-  return walks?.slice().sort((a, b) => direction * (a[field] - b[field])) ?? [];
+  const field = sortType.value.slice(1) as KeysByType<Walk, number | string>;
+  if (typeof walks?.find((a) => a[field])?.[field] === 'string') {
+    const stringField = field as KeysByType<Walk, string | undefined>;
+    const stringCollator = new Intl.Collator();
+    return (
+      walks?.toSorted(
+        (a, b) => direction * stringCollator.compare(a[stringField] ?? '', b[stringField] ?? ''),
+      ) ?? []
+    );
+  } else {
+    const numberField = field as KeysByType<Walk, number>;
+    return walks?.toSorted((a, b) => direction * (a[numberField] - b[numberField])) ?? [];
+  }
 });
 
 const sidebarItemListRef = ref<HTMLElement>();
