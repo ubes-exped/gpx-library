@@ -16,7 +16,7 @@ import { tagComparator } from "@/utils/comparators";
     Upload,
   },
 })
-export default class MapView extends Vue {
+export default class MapPage extends Vue {
   @Prop() walks!: Walk[];
 
   location = { lat: 51.45, lng: -2.6 };
@@ -45,7 +45,7 @@ export default class MapView extends Vue {
   @Watch("redirectToFilter")
   performRedirectToFilter(redirectToFilter: boolean) {
     if (redirectToFilter) {
-      this.$router.replace({ name: this.tagFilter ? "Filter" : "MapView", params: { ...this.$route.params, filter: this.tagFilter } });
+      this.$router.replace({ name: this.tagFilter ? "Filter" : "MapPage", params: { ...this.$route.params, filter: this.tagFilter } });
     }
   }
 

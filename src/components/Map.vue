@@ -12,8 +12,9 @@ import {
 import GeoJSON from "geojson";
 import * as mapboxgl from "mapbox-gl";
 import polyline from "@mapbox/polyline";
-import Walk, { PointOnLine } from "@/interfaces/Walk";
+import Walk from "@/interfaces/Walk";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { PointOnLine } from "@/interfaces/Point";
 
 declare global {
   interface Window {
@@ -134,7 +135,7 @@ export default class Map extends Vue {
     if (!point) {
       this.hoveredMarker.remove();
     } else {
-      this.hoveredMarker.setLngLat([point.long, point.lat]);
+      this.hoveredMarker.setLngLat([point.lng, point.lat]);
       const arrow = this.hoveredMarker
         .getElement()
         .querySelector(".arrow") as HTMLElement;

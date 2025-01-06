@@ -10,6 +10,8 @@ import {
 import Walk from "@/interfaces/Walk";
 import throttle from "@/utils/throttle";
 import { KeysByType } from "@/typings/KeysByType";
+import { Point } from "@turf/helpers";
+import { PointOnLine } from "@/interfaces/Point";
 import Icon from "./Icon.vue";
 import Dropdown from "./Dropdown.vue";
 import SidebarWalk from "./SidebarWalk.vue";
@@ -45,7 +47,7 @@ export default class Sidebar extends Vue {
     this.localSelected = walk?.index ?? null;
 
     if (walk) this.$router.replace({ name: "Walk", params: { id: walk.id } });
-    else this.$router.replace({ name: "MapView" });
+    else this.$router.replace({ name: "MapPage" });
   }
 
   get sortedWalks(): Walk[] {
@@ -66,21 +68,9 @@ export default class Sidebar extends Vue {
     }
   }
 
-  @Emit("hover-point") hoverPoint(point?: { lat: number; long: number }) {
+  @Emit("hover-point") hoverPoint(point?: PointOnLine) {
     return point;
   }
-
-  graphHover = throttle(
-    (walk: Walk, event: MouseEvent) => {
-      if (!walk || !event) return;
-      const target = event.target as HTMLElement;
-      const box = target.getBoundingClientRect();
-      const offset = (event.clientX - box.x) / box.width;
-      const point = walk.getOffset(offset);
-      this.hoverPoint(point);
-    },
-    () => this.hoverPoint(),
-  );
 }
 </script>
 

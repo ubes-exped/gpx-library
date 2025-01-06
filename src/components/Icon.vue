@@ -18,33 +18,3 @@ export default class Icon extends Vue {
   }
 }
 </script>
-
-<template>
-  <i
-    class="material-icons"
-    :class="{ inline, large, placeholder, bottom }"
-    v-on="$listeners"
-  >{{ generated }}<slot /></i>
-</template>
-
-<style lang="scss">
-.material-icons {
-  user-select: none;
-  width: 1em;
-
-  &.inline {
-    vertical-align: middle;
-    align-self: center;
-    font-size: 1em;
-  }
-  &.large {
-    font-size: 1.5em;
-  }
-  &.placeholder {
-    visibility: hidden;
-  }
-  &.bottom {
-    vertical-align: bottom;
-  }
-}
-</style>

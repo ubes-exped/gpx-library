@@ -1,6 +1,6 @@
 export interface Point {
     lat: number;
-    long: number;
+    lng: number;
   }
 
 export interface PointOnLine extends Point {
