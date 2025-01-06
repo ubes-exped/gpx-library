@@ -2,9 +2,9 @@
 import {
   Component, Ref, Vue,
 } from "vue-property-decorator";
-import Overlay from "./Overlay.vue";
+import MaterialIcon from "./MaterialIcon.vue";
 
-@Component({ components: { Overlay } })
+@Component({ components: { MaterialIcon } })
 export default class Help extends Vue {
   @Ref() legalHeader!: HTMLElement;
 
@@ -27,7 +27,7 @@ export default class Help extends Vue {
 </script>
 
 <template>
-  <Overlay
+  <MaterialIcon
     title="UBES Walks Library"
     @close="close"
   >
@@ -74,7 +74,7 @@ export default class Help extends Vue {
     <p>
       Contact: <a :href="mailto">{{ email }}</a>
     </p>
-  </Overlay>
+  </MaterialIcon>
 </template>
 
 <style lang="scss" scoped>

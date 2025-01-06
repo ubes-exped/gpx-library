@@ -12,12 +12,12 @@ import throttle from "@/utils/throttle";
 import { KeysByType } from "@/typings/KeysByType";
 import { Point } from "@turf/helpers";
 import { PointOnLine } from "@/interfaces/Point";
-import Icon from "./Icon.vue";
-import Dropdown from "./Dropdown.vue";
+import MaterialIcon from "./MaterialIcon.vue";
+import DropdownControl from "./DropdownControl.vue";
 import SidebarWalk from "./SidebarWalk.vue";
 
 @Component({
-  components: { Icon, Dropdown, SidebarWalk },
+  components: { MaterialIcon, DropdownControl, SidebarWalk },
 })
 export default class Sidebar extends Vue {
   @Prop({ default: () => [] }) walks!: Walk[];
@@ -83,7 +83,7 @@ export default class Sidebar extends Vue {
       <div class="controls">
         <label class="control">
           Sort:
-          <Dropdown
+          <DropdownControl
             v-model="sortType"
             class="select-wrapper"
             :options="sortOptions"
@@ -94,11 +94,11 @@ export default class Sidebar extends Vue {
           class="control"
         >
           Filter:
-          <Dropdown
+          <DropdownControl
             v-model="tagFilter"
             blank-value=""
             blank-label="Show all"
-            class="dropdown"
+            class="dropdownControl"
             :options="allTags.map(tag => ({ value: tag, label: tag }))"
             clear-button
           />
@@ -115,11 +115,11 @@ export default class Sidebar extends Vue {
       </a>
     </div>
     <div class="minimised-message map">
-      <p><Icon>map</Icon></p>
+      <p><MaterialIcon>map</MaterialIcon></p>
       <p>Map</p>
     </div>
     <div class="minimised-message">
-      <p><Icon>arrow_back</Icon></p>
+      <p><MaterialIcon>arrow_back</MaterialIcon></p>
       <p>Back</p>
     </div>
     <ul>

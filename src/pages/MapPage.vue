@@ -2,18 +2,19 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
-import Sidebar from "@/components/Sidebar.vue";
-import Help from "@/components/Help.vue";
-import Upload from "@/components/Upload.vue";
-import Walk, { PointOnLine } from "@/interfaces/Walk";
+import SidebarContent from "@/components/SidebarContent.vue";
+import HelpModal from "@/components/HelpModal.vue";
+import UploadModal from "@/components/UploadModal.vue";
+import Walk from "@/interfaces/Walk";
 import { tagComparator } from "@/utils/comparators";
+import { PointOnLine } from "@/interfaces/Point";
 
 @Component({
   components: {
-    Map: () => import(/* webpackChunkName: "map" */ "@/components/Map.vue"),
-    Sidebar,
-    Help,
-    Upload,
+    MapView: () => import(/* webpackChunkName: "map" */ "@/components/MapView.vue"),
+    SidebarContent,
+    HelpModal,
+    UploadModal,
   },
 })
 export default class MapPage extends Vue {
@@ -115,7 +116,7 @@ export default class MapPage extends Vue {
 
 <template>
   <div class="map-view">
-    <Sidebar
+    <SidebarContent
       :walks="filteredWalks"
       :selected="selected"
       :use-tags="useTags"
@@ -124,15 +125,15 @@ export default class MapPage extends Vue {
       @update:filter="updateFilter"
       @hover-point="hoverPoint"
     />
-    <Map
+    <MapView
       :center.sync="location"
       :zoom.sync="zoom"
       :walks="filteredWalks"
       :selected="selected"
       :hovered-point="hoveredPoint"
     />
-    <Help v-if="showHelp" />
-    <Upload v-if="showUpload" />
+    <HelpModal v-if="showHelp" />
+    <UploadModal v-if="showUpload" />
   </div>
 </template>
 

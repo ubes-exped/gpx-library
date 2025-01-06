@@ -2,9 +2,9 @@
 import {
   Component, Vue, Emit, Prop,
 } from "vue-property-decorator";
-import Icon from "./Icon.vue";
+import MaterialIcon from "./MaterialIcon.vue";
 
-@Component({ components: { Icon } })
+@Component({ components: { MaterialIcon } })
 export default class Overlay extends Vue {
   @Emit() close() {
   }
@@ -20,15 +20,15 @@ export default class Overlay extends Vue {
   >
     <div class="window">
       <h1>
-        <Icon
+        <MaterialIcon
           inline
           class="back"
           @click="close"
         >
           arrow_back
-        </Icon>
+        </MaterialIcon>
         <span>{{ title }}</span>
-        <Icon
+        <MaterialIcon
           inline
           placeholder
         />

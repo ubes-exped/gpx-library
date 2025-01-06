@@ -2,9 +2,9 @@
 import {
   Component, ModelSync, Prop, Vue,
 } from "vue-property-decorator";
-import Icon from "./Icon.vue";
+import MaterialIcon from "./MaterialIcon.vue";
 
-@Component({ components: { Icon } })
+@Component({ components: { MaterialIcon } })
 export default class Dropdown extends Vue {
   @ModelSync("value", "input") model!: string;
 
@@ -51,22 +51,22 @@ export default class Dropdown extends Vue {
       </option>
       <slot />
     </select>
-    <Icon
+    <MaterialIcon
       v-if="clearButton && model !== blankValue"
       inline
       large
       @click="model = blankValue"
     >
       close
-    </Icon>
-    <Icon
+    </MaterialIcon>
+    <MaterialIcon
       v-else
       class="down-arrow"
       inline
       large
     >
       expand_more
-    </Icon>
+    </MaterialIcon>
   </div>
 </template>
 

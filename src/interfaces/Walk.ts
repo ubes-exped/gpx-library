@@ -123,10 +123,10 @@ export default class Walk {
         const bearing = i === 0
           ? turfBearing(line[0], line[1])
           : turfBearing(line[i - 1], line[i]);
-        const [long, lat] = overshot > 0
+        const [lng, lat] = overshot > 0
           ? turfDestination(line[i], -overshot, bearing).geometry?.coordinates ?? line[i]
           : line[i];
-        return { lat, long, bearing };
+        return { lat, lng, bearing };
       }
       travelled += turfDistance(line[i], line[i + 1]);
     }

@@ -7,11 +7,12 @@ import {
 } from "vue-property-decorator";
 import Walk from "@/interfaces/Walk";
 import { tagComparator } from "@/utils/comparators";
-import Icon from "./Icon.vue";
+import MaterialIcon from "./MaterialIcon.vue";
 import throttle from "../utils/throttle";
+import { PointOnLine } from "@/interfaces/Point";
 
 @Component({
-  components: { Icon },
+  components: { MaterialIcon },
 })
 export default class SidebarWalk extends Vue {
   @Prop({ required: true }) walk!: Walk;
@@ -23,7 +24,7 @@ export default class SidebarWalk extends Vue {
   @Emit("select") select() {
   }
 
-  @Emit("hover-point") hoverPoint(point?: { lat: number; long: number }) {
+  @Emit("hover-point") hoverPoint(point?: PointOnLine) {
     return point;
   }
 
@@ -105,10 +106,10 @@ export default class SidebarWalk extends Vue {
           download
         >
           GPX
-          <icon
+          <MaterialIcon
             inline
             large
-          >get_app</icon>
+          >get_app</MaterialIcon>
         </a>
       </p>
     </div>

@@ -2,9 +2,9 @@
 import {
   Component, Vue,
 } from "vue-property-decorator";
-import Overlay from "./Overlay.vue";
+import ModalWindow from "./ModalWindow.vue";
 
-@Component({ components: { Overlay } })
+@Component({ components: { ModalWindow } })
 export default class Upload extends Vue {
   close() {
     this.$router.go(-1);
@@ -13,7 +13,7 @@ export default class Upload extends Vue {
 </script>
 
 <template>
-  <Overlay
+  <ModalWindow
     title="Upload new walk"
     @close="close"
   >
@@ -56,5 +56,5 @@ export default class Upload extends Vue {
         >
       </p>
     </form>
-  </Overlay>
+  </ModalWindow>
 </template>
