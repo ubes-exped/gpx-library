@@ -4,6 +4,7 @@ import type { PointOnLine } from '@/interfaces/Point';
 import { computed, onBeforeUnmount, onMounted, ref, useCssModule, watch } from 'vue';
 import { addLayersToMap, applyWalks, MapSourceLayer, useMapSelection } from '@/utils/map';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { useRouter } from 'vue-router';
 
 declare global {
   interface Window {
@@ -19,8 +20,6 @@ const token =
 import polyline from '@mapbox/polyline';
 import type Walk from '@/interfaces/Walk';
 
-const style = useCssModule();
-
 const center = defineModel<mapboxgl.LngLatLike>('center');
 const zoom = defineModel<number>('zoom');
 const selected = defineModel<string>('selected');
@@ -31,6 +30,10 @@ const { walks = [], hoveredPoint } = defineProps<{
 }>();
 
 const selectedWalks = computed(() => walks.filter((walk) => walk.id === selected.value));
+
+const router = useRouter();
+
+const style = useCssModule();
 
 const container = ref<HTMLDivElement>();
 const mapStyle = ref('mapbox://styles/charding/ckhr4mjb11o5n19ke1n26cv1c');
@@ -55,7 +58,7 @@ if (!window.cachedMapElement) {
   newMap.addControl(new mapboxgl.FullscreenControl({ container: document.body }), 'top-right');
   newMap.addControl(
     new mapboxgl.NavigationControl({ showZoom: false, visualizePitch: true }),
-    'bottom-left',
+    'top-right',
   );
 
   newMap.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
@@ -79,6 +82,9 @@ map.on('click', (ev) => {
   click(ev);
 });
 map.once('idle', () => {
+  mapLoaded(map);
+});
+map.once('style.load', () => {
   mapLoaded(map);
 });
 
@@ -138,7 +144,10 @@ const flyToSelection = () => {
 const { click } = useMapSelection({
   getExternalSelection: () => selected.value,
   flyToSelection,
-  emitUpdate: (newSelected) => (selected.value = newSelected),
+  emitUpdate: (newSelected) => {
+    if (newSelected) void router.replace({ name: 'Walk', params: { id: newSelected } });
+    else void router.replace({ name: 'MapPage' });
+  },
 });
 
 const hoveredMarker = new mapboxgl.Marker(makeMarker());

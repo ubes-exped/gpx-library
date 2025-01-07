@@ -35,7 +35,11 @@ const tags = computed(() => walk.tags?.toSorted(tagComparator));
 </script>
 
 <template>
-  <li :key="walk.id" :class="[$style.walk, selected && $style.selected]" @click="emit('select')">
+  <li
+    :key="walk.id"
+    :class="[$style.walk, selected && $style.selected, { selected }]"
+    @click="emit('select')"
+  >
     <h3>{{ walk.name }}</h3>
     <p :class="$style.stats">
       ↔︎ {{ walk.distance.toFixed(1) }} km, ↗︎ {{ walk.ascent.toFixed(0) }} m
