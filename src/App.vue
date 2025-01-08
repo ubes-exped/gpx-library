@@ -82,6 +82,7 @@ body {
   --background: #fff;
   --background-slight: #eee;
   --background-strong: #ccc;
+  --background-error: #f88;
   --overlay-color: rgba(255, 255, 255, 0.5);
   --invert: 0%;
 }
@@ -93,6 +94,7 @@ body {
     --background: #222;
     --background-slight: #333;
     --background-strong: #555;
+    --background-error: #800;
     --overlay-color: rgba(0, 0, 0, 0.5);
     --invert: 100%;
   }

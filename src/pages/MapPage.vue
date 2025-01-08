@@ -92,6 +92,14 @@ const allTags = computed(
   () => walks && Array.from(new Set(walks.flatMap((walk) => walk.tags ?? []))).sort(tagComparator),
 );
 
+const allAuthors = computed<string[] | undefined>(
+  () =>
+    walks &&
+    Array.from(new Set(walks.map((walk) => walk.author)))
+      .filter((author): author is string => !!author)
+      .sort(),
+);
+
 const hoveredPoint = ref<PointOnLine>();
 
 const updateFilter = async (filter: string) => {
@@ -135,7 +143,7 @@ const MapView = defineAsyncComponent(() => import('@/components/MapView.vue'));
       :hovered-point="hoveredPoint"
     />
     <HelpModal v-if="showHelp" :lockFilter="lockFilter" />
-    <UploadModal v-if="showUpload" />
+    <UploadModal v-if="showUpload" :all-tags="allTags" :all-authors="allAuthors" />
   </div>
 </template>
 

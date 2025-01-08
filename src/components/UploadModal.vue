@@ -5,6 +5,12 @@ import { reactive, ref } from 'vue';
 import UploadField from './UploadField.vue';
 import { VirtualNode } from '@/interfaces/VirtualNode';
 import MaterialIcon from './MaterialIcon.vue';
+import KeywordField from './KeywordField.vue';
+
+const { allTags = [], allAuthors } = defineProps<{
+  allTags?: string[];
+  allAuthors?: string[];
+}>();
 
 const router = useRouter();
 
@@ -130,12 +136,19 @@ const selectFile = async () => {
     <div v-if="data" :class="$style.uploadFields">
       <UploadField v-model="data.name" :fallback="data.defaultName ?? undefined">Name</UploadField>
       <UploadField v-model="data.desc">Description</UploadField>
-      <UploadField v-model="data.authorName">Author</UploadField>
+      <UploadField v-model="data.authorName" :suggestions="allAuthors">Author</UploadField>
       <UploadField
         v-model="data.keywords"
         description="comma-separated keywords, used for filtering"
       >
         Keywords <MaterialIcon inline>info</MaterialIcon>
+        <template #edit="{ class: className }">
+          <KeywordField
+            :class="[className]"
+            v-model="data.keywords"
+            :all-tags="allTags"
+          ></KeywordField>
+        </template>
       </UploadField>
     </div>
     <p>

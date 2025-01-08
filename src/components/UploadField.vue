@@ -11,7 +11,10 @@ const edit = ref(false);
 const { fallback } = defineProps<{
   fallback?: string;
   description?: string;
+  suggestions?: string[];
 }>();
+
+const datalistId = crypto.randomUUID();
 
 const reset = () => {
   edit.value = false;
@@ -29,7 +32,16 @@ const suggest = () => {
     <label :class="$style.label" :title="description"><slot />:</label>
 
     <slot name="edit" v-if="edit" :class="$style.value">
-      <input type="text" :value="model" :title="description" />
+      <input
+        type="text"
+        :value="model"
+        :title="description"
+        :class="$style.value"
+        :list="datalistId"
+      />
+      <datalist v-if="suggestions" :id="datalistId">
+        <option v-for="suggestion in suggestions" :key="suggestion">{{ suggestion }}</option>
+      </datalist>
     </slot>
     <div v-else :class="$style.value" :title="description">
       <span v-if="model != null">{{ model }}</span>
