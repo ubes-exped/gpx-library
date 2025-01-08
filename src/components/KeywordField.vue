@@ -107,7 +107,7 @@ const comma = (event: KeyboardEvent) => {
   <div :class="$style.keywordField">
     <div :class="$style.keywords">
       <div v-for="(keyword, i) of keywordTablets" :key="keyword" :class="$style.keyword">
-        {{ keyword }}
+        {{ keyword }}<span :class="$style.hiddenComma">, </span>
         <MaterialIcon inline @click="deleteIndex(i)">close</MaterialIcon>
       </div>
     </div>
@@ -142,5 +142,11 @@ const comma = (event: KeyboardEvent) => {
 
 .keyword {
   @include tablet.colours;
+}
+
+.hiddenComma {
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
 }
 </style>

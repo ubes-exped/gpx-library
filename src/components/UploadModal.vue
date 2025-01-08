@@ -15,7 +15,7 @@ const { allTags = [], allAuthors } = defineProps<{
 const router = useRouter();
 
 const close = () => {
-  router.go(-1);
+  void router.replace('MapPage');
 };
 
 const errorMessage = ref<string>();
@@ -74,7 +74,7 @@ const selectFile = async () => {
     const body = root.outerHTML;
 
     const formData = new FormData();
-    formData.append('file', new Blob([body], { type: MIME_XML }), fileName);
+    formData.append('gpxfile', new Blob([body], { type: MIME_XML }), fileName);
 
     const response = await fetch('/upload.php', { method: 'POST', body: formData });
 
