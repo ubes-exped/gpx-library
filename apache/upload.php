@@ -29,6 +29,6 @@ if ($error) {
 } else {
   $error[] = "Sorry, there was an error uploading your file.";
 }
-header("Content-Type: text/plain");
+header("Content-Type: text/plain", true, 400);
 echo implode("\n", $error);
 ?>
