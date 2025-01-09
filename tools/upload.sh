@@ -1,14 +1,20 @@
 #!/bin/bash
 set -e
 
-REPO_PATH="routes.ubes.co.uk"
+SCRIPT_PATH="$(dirname "$(readlink -f -- "$0")")"
+REPO_PATH="$SCRIPT_PATH/routes.ubes.co.uk"
+
+ID="$(date -Ins)@$(basename -- "$0")"
 
 err_report() {
   echo "$ID: err on line upload.sh:$(caller), aborting" >&2
   exit 1
 }
-
 trap err_report ERR
+
+echo "$ID: Will add new file at $(date)"
+
+bash "$SCRIPT_PATH/git-setup.sh"
 
 cd $REPO_PATH
 
@@ -17,17 +23,6 @@ do
     sleep 1
 done
 
-
-ID="$(date -Ins)"
-
-echo "$ID: Will add new file at $(date)"
-echo "$ID: Setting git config at $(date)"
-git config user.name "Goaty Bot"
-git config user.email "goaty@ubes.co.uk"
-git config --local core.sshCommand "/usr/bin/ssh -i ../../github_deploy"
-echo "$ID: Fetching git repo at $(date)"
-git fetch origin
-git checkout origin/master
 echo "$ID: Adding file at $(date)"
 git add gpx/*
 if ! git diff-index --quiet HEAD; then
