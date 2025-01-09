@@ -1,4 +1,5 @@
 import type { GeoJSON } from 'geojson';
+import type * as maplibregl from 'maplibre-gl';
 
 export const ukBounds: maplibregl.LngLatBoundsLike = [
   [-10.76418, 49.528423],
@@ -30,6 +31,13 @@ function removeBackground(map: maplibregl.Map) {
   const backLayerId = map.getLayersOrder()[0];
   if (map.getLayer(backLayerId)?.type === 'background') {
     map.removeLayer(backLayerId);
+  }
+}
+
+export function addOsAttribution(map: maplibregl.Map) {
+  const esri = map.getSource('esri');
+  if (esri) {
+    esri.attribution = `Contains OS data © Crown copyright and database rights ${new Date().getFullYear().toFixed(0)}`;
   }
 }
 

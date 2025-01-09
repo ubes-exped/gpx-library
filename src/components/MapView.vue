@@ -11,7 +11,7 @@ import {
 } from '@/utils/map';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useRouter } from 'vue-router';
-import { overrideOsMap, ukBounds } from '@/utils/os-map';
+import { addOsAttribution, overrideOsMap, ukBounds } from '@/utils/os-map';
 
 declare global {
   interface Window {
@@ -20,6 +20,30 @@ declare global {
 }
 
 const osKey = 'q6ygAjaocSqBV553jubhAFqd9o4yiczG';
+
+class LinkControl implements maplibregl.IControl {
+  constructor(
+    private readonly href: string,
+    private readonly className?: string,
+    private readonly text?: string,
+  ) {}
+
+  onAdd() {
+    const control = document.createElement('a');
+    control.href = this.href;
+    control.target = '_blank';
+    control.classList.add('maplibregl-ctrl');
+    if (this.className) control.classList.add(this.className);
+    if (this.text) control.innerText = this.text;
+    return control;
+  }
+  onRemove() {
+    // no-op
+  }
+  getDefaultPosition(): maplibregl.ControlPosition {
+    return 'bottom-left';
+  }
+}
 </script>
 
 <script setup lang="ts">
@@ -53,14 +77,19 @@ const makeMarker = () => {
 };
 
 if (!window.cachedMapElement) {
+  const container = document.createElement('div');
+  container.id = 'map-container';
+
   const newMap = new maplibregl.Map({
-    container: document.createElement('div'),
+    container,
     style: mapStyle.value,
     center: center.value,
     zoom: zoom.value,
     maxZoom: 16 * (1 - Number.EPSILON),
   });
 
+  newMap.addControl(new maplibregl.LogoControl({ compact: false }));
+  newMap.addControl(new LinkControl('https://www.ordnancesurvey.co.uk/', style.osLogo));
   newMap.addControl(new maplibregl.FullscreenControl({ container: document.body }), 'top-right');
   newMap.addControl(
     new maplibregl.NavigationControl({ showZoom: false, visualizePitch: true }),
@@ -126,7 +155,7 @@ watch(selectedWalks, (selectedWalks) => {
 
 const mapLoaded = (map: maplibregl.Map) => {
   resize();
-
+  addOsAttribution(map);
   addLayersToMap(map);
 
   applyWalks(map, walks, MapSourceLayer.LINES);
@@ -209,5 +238,20 @@ watch(
     stroke: white;
     stroke-width: 20;
   }
+}
+
+.osLogo {
+  width: 90px;
+  height: 24px;
+  background-image: url(https://labs.os.uk/public/os-api-branding/v0.3.1/img/os-logo-maps.svg);
+  // background-image: url(https://labs.os.uk/public/os-api-branding/v0.3.1/img/os-logo-maps-white.svg);
+  background-size: 90px 24px;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-sizing: content-box;
+}
+
+:global(.maplibregl-ctrl-bottom-right) {
+  margin-left: 100px;
 }
 </style>
