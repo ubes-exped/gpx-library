@@ -19,11 +19,12 @@
   },
   "dependencies": {
     "@mapbox/polyline": "^1.2.1",
+    "@placemarkio/geo-viewport": "^1.0.2",
     "@turf/bearing": "^7.2.0",
     "@turf/destination": "^7.2.0",
     "@turf/distance": "^7.2.0",
     "@unhead/vue": "^1.11.14",
-    "mapbox-gl": "^3.9.2",
+    "maplibre-gl": "^5.0.0",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },

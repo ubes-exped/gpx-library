@@ -1,26 +1,32 @@
 <script lang="ts">
-import * as mapboxgl from 'mapbox-gl';
+import * as maplibregl from 'maplibre-gl';
 import type { PointOnLine } from '@/interfaces/Point';
 import { computed, onBeforeUnmount, onMounted, ref, useCssModule, watch } from 'vue';
-import { addLayersToMap, applyWalks, MapSourceLayer, useMapSelection } from '@/utils/map';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import {
+  addLayersToMap,
+  applyWalks,
+  greaterBounds,
+  MapSourceLayer,
+  useMapSelection,
+} from '@/utils/map';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { useRouter } from 'vue-router';
+import { overrideOsMap, ukBounds } from '@/utils/os-map';
 
 declare global {
   interface Window {
-    cachedMapElement?: mapboxgl.Map;
+    cachedMapElement?: maplibregl.Map;
   }
 }
 
-const token =
-  'pk.eyJ1IjoiY2hhcmRpbmciLCJhIjoiY2tocjJpcW5wMGYyOTJydDBicTZvam8xcCJ9.ZJfnHJE_5dJNCsEsQCrwJw';
+const osKey = 'q6ygAjaocSqBV553jubhAFqd9o4yiczG';
 </script>
 
 <script setup lang="ts">
 import polyline from '@mapbox/polyline';
 import type Walk from '@/interfaces/Walk';
 
-const center = defineModel<mapboxgl.LngLatLike>('center');
+const center = defineModel<maplibregl.LngLatLike>('center');
 const zoom = defineModel<number>('zoom');
 const selected = defineModel<string>('selected');
 
@@ -36,7 +42,7 @@ const router = useRouter();
 const style = useCssModule();
 
 const container = ref<HTMLDivElement>();
-const mapStyle = ref('mapbox://styles/charding/ckhr4mjb11o5n19ke1n26cv1c');
+const mapStyle = ref('https://api.os.uk/maps/vector/v1/vts/resources/styles?srs=3857&key=' + osKey);
 
 const makeMarker = () => {
   const wrapper = document.createElement('div');
@@ -47,29 +53,35 @@ const makeMarker = () => {
 };
 
 if (!window.cachedMapElement) {
-  const newMap = new mapboxgl.Map({
-    accessToken: token,
+  const newMap = new maplibregl.Map({
     container: document.createElement('div'),
     style: mapStyle.value,
     center: center.value,
     zoom: zoom.value,
+    maxZoom: 16 * (1 - Number.EPSILON),
   });
 
-  newMap.addControl(new mapboxgl.FullscreenControl({ container: document.body }), 'top-right');
+  newMap.addControl(new maplibregl.FullscreenControl({ container: document.body }), 'top-right');
   newMap.addControl(
-    new mapboxgl.NavigationControl({ showZoom: false, visualizePitch: true }),
+    new maplibregl.NavigationControl({ showZoom: false, visualizePitch: true }),
     'top-right',
   );
 
-  newMap.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
+  newMap.addControl(new maplibregl.ScaleControl(), 'bottom-left');
 
   window.cachedMapElement = newMap;
 }
 const map = window.cachedMapElement;
 
+const resize = () => {
+  map.resize();
+  const newBounds = greaterBounds(ukBounds, map);
+  map.setMaxBounds(newBounds);
+};
+
 onMounted(() => {
   container.value?.appendChild(map.getContainer());
-  map.resize();
+  resize();
 });
 
 map.on('zoomend', () => {
@@ -81,21 +93,23 @@ map.on('moveend', () => {
 map.on('click', (ev) => {
   click(ev);
 });
-map.once('idle', () => {
-  mapLoaded(map);
-});
-map.once('style.load', () => {
+void map.once('style.load', () => {
   mapLoaded(map);
 });
 
-const resizeHandler = () => map.resize();
+const sourcedataSubscription = map.on('sourcedata', (e) => {
+  if (e.sourceId === 'esri' && e.isSourceLoaded) {
+    sourcedataSubscription.unsubscribe();
+    overrideOsMap(map);
+  }
+});
 
 onMounted(() => {
-  window.addEventListener('transitionend', resizeHandler, { passive: true });
+  window.addEventListener('transitionend', resize, { passive: true });
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener('transitionend', resizeHandler);
+  window.removeEventListener('transitionend', resize);
 });
 
 watch(mapStyle, (style) => map.setStyle(style));
@@ -110,8 +124,8 @@ watch(selectedWalks, (selectedWalks) => {
   applyWalks(map, selectedWalks, MapSourceLayer.SELECTED);
 });
 
-const mapLoaded = (map: mapboxgl.Map) => {
-  map.resize();
+const mapLoaded = (map: maplibregl.Map) => {
+  resize();
 
   addLayersToMap(map);
 
@@ -119,11 +133,11 @@ const mapLoaded = (map: mapboxgl.Map) => {
   applyWalks(map, selectedWalks.value, MapSourceLayer.SELECTED);
 };
 
-const zoomend = (map: mapboxgl.Map): void => {
+const zoomend = (map: maplibregl.Map): void => {
   zoom.value = map.getZoom();
 };
 
-const moveend = (map: mapboxgl.Map): void => {
+const moveend = (map: maplibregl.Map): void => {
   center.value = map.getCenter();
 };
 
@@ -136,7 +150,7 @@ const flyToSelection = () => {
   const coordinates = polyline.decode(walk.polyline).map<[number, number]>(([y, x]) => [x, y]);
   const bounds = coordinates.reduce(
     (acc, coord) => acc.extend(coord),
-    new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]),
+    new maplibregl.LngLatBounds(coordinates[0], coordinates[0]),
   );
   map.fitBounds(bounds, { padding, maxZoom: 20 });
 };
@@ -150,7 +164,7 @@ const { click } = useMapSelection({
   },
 });
 
-const hoveredMarker = new mapboxgl.Marker(makeMarker());
+const hoveredMarker = new maplibregl.Marker(makeMarker());
 
 watch(
   () => hoveredPoint,
@@ -174,16 +188,14 @@ watch(
 </template>
 
 <style lang="scss" module>
-@import 'https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css' layer(mapbox);
-
 .mapContainer {
   display: contents;
 
-  :global(.mapboxgl-map) {
+  :global(.maplibregl-map) {
     flex: 1;
     z-index: 0;
 
-    :global(.mapboxgl-canvas) {
+    :global(.maplibregl-canvas) {
       cursor: pointer;
     }
   }

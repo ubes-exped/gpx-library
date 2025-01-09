@@ -1,6 +1,7 @@
+import { bounds as viewportBounds } from '@placemarkio/geo-viewport';
 import { toGeoJSON } from '@mapbox/polyline';
 import type { Feature, FeatureCollection, LineString } from 'geojson';
-import type * as mapboxgl from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
 import { nextTick, watch } from 'vue';
 import type Walk from '@/interfaces/Walk';
 
@@ -19,8 +20,8 @@ export enum MapLayer {
 }
 
 const fromZoom = (
-  ...pairs: (readonly [zoom: number, value: unknown])[]
-): mapboxgl.ExpressionSpecification => [
+  ...pairs: (readonly [zoom: number, value: number])[]
+): maplibregl.ExpressionSpecification => [
   'interpolate',
   ['linear'],
   ['zoom'],
@@ -42,16 +43,16 @@ const makeGeoJsonData = (
     })),
 });
 
-const makeGeoJson = (walks: readonly Walk[] = []): mapboxgl.GeoJSONSourceSpecification => ({
+const makeGeoJson = (walks: readonly Walk[] = []): maplibregl.GeoJSONSourceSpecification => ({
   type: 'geojson',
   data: makeGeoJsonData(walks),
 });
 
 interface LayerDef {
   source: MapSourceLayer;
-  color: mapboxgl.ExpressionSpecification | string;
-  width: mapboxgl.ExpressionSpecification | number;
-  opacity: mapboxgl.ExpressionSpecification | number;
+  color: maplibregl.ExpressionSpecification | string;
+  width: maplibregl.ExpressionSpecification | number;
+  opacity: maplibregl.ExpressionSpecification | number;
 }
 
 const layers: Record<MapLayer, LayerDef> = {
@@ -69,7 +70,7 @@ const layers: Record<MapLayer, LayerDef> = {
   },
 };
 
-const buildLineLayer = (id: string, layer: LayerDef): mapboxgl.Layer => ({
+const buildLineLayer = (id: string, layer: LayerDef): maplibregl.LayerSpecification => ({
   id,
   type: 'line',
   source: layer.source,
@@ -80,7 +81,7 @@ const buildLineLayer = (id: string, layer: LayerDef): mapboxgl.Layer => ({
   },
 });
 
-export const addLayersToMap = (map: mapboxgl.Map) => {
+export const addLayersToMap = (map: maplibregl.Map) => {
   Object.values(MapSourceLayer).forEach(
     (id) => map.getSource(id) ?? map.addSource(id, makeGeoJson()),
   );
@@ -92,18 +93,18 @@ export const addLayersToMap = (map: mapboxgl.Map) => {
 };
 
 export const applyWalks = (
-  map: mapboxgl.Map,
+  map: maplibregl.Map,
   next: readonly Walk[],
   sourceID: MapSourceLayer,
 ): void => {
-  const source = map.getSource<mapboxgl.GeoJSONSource>(sourceID);
+  const source = map.getSource<maplibregl.GeoJSONSource>(sourceID);
   source?.setData(makeGeoJsonData(next));
 };
 
 const surround = (
-  point: mapboxgl.Point,
+  point: maplibregl.Point,
   offset: number,
-): [mapboxgl.PointLike, mapboxgl.PointLike] => [
+): [maplibregl.PointLike, maplibregl.PointLike] => [
   [point.x - offset, point.y + offset],
   [point.x + offset, point.y - offset],
 ];
@@ -117,7 +118,7 @@ interface UseMapSelectionConfig {
 }
 
 interface UseMapSelection {
-  click: (e: mapboxgl.MapMouseEvent) => void;
+  click: (e: maplibregl.MapMouseEvent) => void;
 }
 
 export const useMapSelection = ({
@@ -141,7 +142,7 @@ export const useMapSelection = ({
     emitUpdate(localSelection);
   }
 
-  const click = (e: mapboxgl.MapMouseEvent): void => {
+  const click = (e: maplibregl.MapMouseEvent): void => {
     const map = e.target;
     const originalEvent = e.originalEvent;
     // Ignore duplicate clicks
@@ -161,3 +162,16 @@ export const useMapSelection = ({
 
   return { click };
 };
+
+export function greaterBounds(bounds: maplibregl.LngLatBoundsLike, map: maplibregl.Map) {
+  const { center, zoom } = map.cameraForBounds(bounds) ?? {};
+  if (!center || !zoom) {
+    return bounds;
+  }
+  const dimensions: [number, number] = [
+    Math.floor(map.getCanvas().offsetWidth),
+    Math.floor(map.getCanvas().offsetHeight),
+  ];
+  // Mapbox vector tiles are 512x512, as opposed to the library's assumed default of 256x256, hence the final `512` argument
+  return viewportBounds(maplibregl.LngLat.convert(center).toArray(), zoom, dimensions, 512);
+}
