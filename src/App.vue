@@ -20,7 +20,7 @@ const isEmbedded = window.self !== window.top;
 
 <template>
   <RouterView
-    :walks="walks"
+    v-model:walks="walks"
     :lockFilter="isEmbedded"
     :lockContributions="isEmbedded"
     :showFullLink="isEmbedded"
@@ -83,6 +83,10 @@ body {
   --background-slight: #eee;
   --background-strong: #ccc;
   --background-error: #f88;
+  --background-warn: #ffd;
+  --color-weak: #555;
+  --color-error: #800;
+  --color-success: #080;
   --overlay-color: rgba(255, 255, 255, 0.5);
   --invert: 0%;
 }
@@ -92,9 +96,13 @@ body {
     --color: #fff;
     --link-color: #8cf;
     --background: #222;
-    --background-slight: #333;
+    --background-slight: #224;
     --background-strong: #555;
     --background-error: #800;
+    --background-warn: #551;
+    --color-weak: #ccc;
+    --color-error: #f88;
+    --color-success: #8f8;
     --overlay-color: rgba(0, 0, 0, 0.5);
     --invert: 100%;
   }

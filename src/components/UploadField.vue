@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { nextTick, ref, watch } from 'vue';
 import MaterialIcon from './MaterialIcon.vue';
 
 const model = defineModel<string | null>();
@@ -25,16 +25,24 @@ const suggest = () => {
   edit.value = true;
   model.value = fallback;
 };
+
+const el = ref<HTMLElement>();
+
+watch(edit, async () => {
+  if (edit.value) {
+    await nextTick(() => el.value?.querySelector('input')?.focus());
+  }
+});
 </script>
 
 <template>
-  <div :class="$style.uploadField">
+  <div :class="$style.uploadField" ref="el">
     <label :class="$style.label" :title="description"><slot />:</label>
 
     <slot name="edit" v-if="edit" :class="$style.value">
       <input
         type="text"
-        :value="model"
+        v-model="model"
         :title="description"
         :class="$style.value"
         :list="datalistId"

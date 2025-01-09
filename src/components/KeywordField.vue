@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import MaterialIcon from './MaterialIcon.vue';
 
 const model = defineModel<string | null>({ required: true });
@@ -60,7 +60,8 @@ const newInput = computed<string>({
         keywords.value = keywords.value.concat(allVals);
       }
       if (closedEnd) {
-        addEntry();
+        // This must be asynchronous to allow for the model to be updated
+        void nextTick(addEntry);
       }
     } else {
       if (editingLastInput.value) {
@@ -101,12 +102,18 @@ const comma = (event: KeyboardEvent) => {
     event.preventDefault();
   }
 };
+
+const isNewKeyword = (word: string) => !allTags.includes(word);
 </script>
 
 <template>
   <div :class="$style.keywordField">
     <div :class="$style.keywords">
-      <div v-for="(keyword, i) of keywordTablets" :key="keyword" :class="$style.keyword">
+      <div
+        v-for="(keyword, i) of keywordTablets"
+        :key="keyword"
+        :class="[$style.keyword, isNewKeyword(keyword) && $style.warn]"
+      >
         {{ keyword }}<span :class="$style.hiddenComma">, </span>
         <MaterialIcon inline @click="deleteIndex(i)">close</MaterialIcon>
       </div>
@@ -138,15 +145,21 @@ const comma = (event: KeyboardEvent) => {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  font-size: max(0.8em, 12px);
 }
 
 .keyword {
-  @include tablet.colours;
+  @include tablet.full;
+}
+
+.keyword.warn {
+  background-color: var(--background-warn);
 }
 
 .hiddenComma {
   display: inline-block;
   width: 0;
+  height: 0;
   overflow: hidden;
 }
 </style>

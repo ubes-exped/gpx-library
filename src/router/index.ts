@@ -9,7 +9,7 @@ const router = createRouter({
       path: '/',
       name: 'MapPage',
       component: MapPage,
-      props: { filterFromUrl: '' },
+      props: { filterFromUrl: '', selectedHash: null },
     },
     {
       path: '/walk/:id',

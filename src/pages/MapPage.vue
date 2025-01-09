@@ -3,14 +3,16 @@ import HelpModal from '@/components/HelpModal.vue';
 import SidebarContent from '@/components/SidebarContent.vue';
 import UploadModal from '@/components/UploadModal.vue';
 import type { Point, PointOnLine } from '@/interfaces/Point';
-import type Walk from '@/interfaces/Walk';
+import Walk from '@/interfaces/Walk';
 
 import { tagComparator } from '@/utils/comparators';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+const walks = defineModel<Walk[]>('walks')
+
 const {
-  walks,
+  /** selectedHash is null when nothing is selected, and undefined when the URL does not determine the selection */
   selectedHash,
   filterFromUrl,
   redirectToFilter,
@@ -20,8 +22,7 @@ const {
   lockContributions,
   showFullLink,
 } = defineProps<{
-  walks?: Walk[];
-  selectedHash?: string;
+  selectedHash?: string | null;
   filterFromUrl?: string;
   redirectToFilter?: boolean;
   showHelp?: boolean;
@@ -77,9 +78,9 @@ const performRedirectToFilter = () =>
   });
 
 const filteredWalks = computed(() => {
-  if (!tagFilter.value) return walks ?? [];
+  if (!tagFilter.value) return walks.value ?? []; 
 
-  return walks?.filter((walk) => walk.tags?.includes(tagFilter.value)) ?? [];
+  return walks.value?.filter((walk) => walk.tags?.includes(tagFilter.value)) ?? [];
 });
 
 watch(filteredWalks, (filtered) => {
@@ -89,13 +90,13 @@ watch(filteredWalks, (filtered) => {
 });
 
 const allTags = computed(
-  () => walks && Array.from(new Set(walks.flatMap((walk) => walk.tags ?? []))).sort(tagComparator),
+  () => walks.value && Array.from(new Set(walks.value.flatMap((walk) => walk.tags ?? []))).sort(tagComparator),
 );
 
 const allAuthors = computed<string[] | undefined>(
   () =>
-    walks &&
-    Array.from(new Set(walks.map((walk) => walk.author)))
+    walks.value &&
+    Array.from(new Set(walks.value.map((walk) => walk.author)))
       .filter((author): author is string => !!author)
       .sort(),
 );
@@ -110,9 +111,9 @@ const updateFilter = async (filter: string) => {
 watch(
   () => [selectedHash, walks],
   () => {
-    if (selectedHash && walks?.some((walk) => walk.id === selectedHash)) {
+    if (selectedHash && walks.value?.some((walk) => walk.id === selectedHash)) {
       selected.value = selectedHash;
-    } else {
+    } else if (selectedHash !== undefined) {
       selected.value = undefined;
     }
   },
@@ -139,11 +140,11 @@ const MapView = defineAsyncComponent(() => import('@/components/MapView.vue'));
       v-model:center="location"
       v-model:zoom="zoom"
       v-model:selected="selected"
-      :walks="filteredWalks"
+      v-model:walks="filteredWalks"
       :hovered-point="hoveredPoint"
     />
     <HelpModal v-if="showHelp" :lockFilter="lockFilter" />
-    <UploadModal v-if="showUpload" :all-tags="allTags" :all-authors="allAuthors" />
+    <UploadModal v-if="showUpload" :all-tags="allTags" :all-authors="allAuthors" @reloadWalks="walks = $event" />
   </div>
 </template>
 

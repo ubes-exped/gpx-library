@@ -6,16 +6,20 @@ import UploadField from './UploadField.vue';
 import { VirtualNode } from '@/interfaces/VirtualNode';
 import MaterialIcon from './MaterialIcon.vue';
 import KeywordField from './KeywordField.vue';
+import Walk, { type RawWalk } from '@/interfaces/Walk';
+import { routesFile } from '@/config';
 
 const { allTags = [], allAuthors } = defineProps<{
   allTags?: string[];
   allAuthors?: string[];
 }>();
 
+const emit = defineEmits<{ reloadWalks: [walks: Walk[]] }>();
+
 const router = useRouter();
 
 const close = () => {
-  void router.replace('MapPage');
+  router.go(-1);
 };
 
 const errorMessage = ref<string>();
@@ -97,27 +101,56 @@ const selectFile = async () => {
 
   data.value = newData;
 };
+
+const reloadState = ref<'loading' | 'success' | 'failure'>();
+
+const reload = async () => {
+  if (reloadState.value === 'loading') return;
+  reloadState.value = 'loading';
+  try {
+    const walksResponse = await fetch(routesFile);
+    const rawWalks: RawWalk[] = await walksResponse.json();
+    emit(
+      'reloadWalks',
+      rawWalks.map((walk) => new Walk(walk)),
+    );
+    reloadState.value = 'success';
+  } catch (e: unknown) {
+    console.error('Error fetching walks', e);
+    reloadState.value = 'failure';
+  }
+};
 </script>
 
 <template>
   <ModalWindow title="Upload new walk" @close="close">
-    <p>Use the following form to upload a new route.</p>
+    <p>Use the following form to upload a new walk.</p>
     <p>After the upload has been completed, it will be processed in about a minute.</p>
     <p>
-      If it doesn’t show up, check if a build has been triggered
-      <a
-        href="https://github.com/ubes-exped/routes.ubes.co.uk/actions/workflows/compile.yml"
-        target="_blank"
-        >in GitHub</a
+      If it still doesn’t show up, trigger a
+      <a href="/" @click.prevent="reload" :class="reloadState === 'loading' && $style.disabled"
+        >hard refresh</a
+      >.
+      <MaterialIcon v-if="reloadState === 'success'" inline bottom :class="$style.success">
+        check_circle
+      </MaterialIcon>
+      <MaterialIcon v-else-if="reloadState === 'failure'" inline bottom :class="$style.error">
+        error
+      </MaterialIcon>
+    </p>
+    <p>
+      You can also check if a build has been triggered
+      <a href="https://github.com/ubes-exped/routes.ubes.co.uk/actions" target="_blank">in GitHub</a
       >.
     </p>
     <hr />
     <p>
-      To make changes to an existing route, upload the same route with new metadata. For any other
-      operations (deleting, changing the path of a route), please modify the data
+      To make changes to an existing walk, upload the same walk with new metadata. For any other
+      operations (deleting a walk or changing the path), please modify the data
       <a href="https://github.com/ubes-exped/routes.ubes.co.uk" target="_blank">in GitHub</a>
       directly.
     </p>
+    <hr />
     <p>
       <input
         :class="$style.uploadInput"
@@ -175,5 +208,18 @@ const selectFile = async () => {
 
 .uploadInput {
   width: 100%;
+}
+
+.error {
+  color: var(--color-error);
+}
+
+.success {
+  color: var(--color-success);
+}
+
+a.disabled {
+  color: var(--color-weak);
+  cursor: default;
 }
 </style>
