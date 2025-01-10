@@ -56,10 +56,8 @@ const sortedWalks = computed(() => {
   if (typeof walks?.find((a) => a[field])?.[field] === 'string') {
     const stringField = field as KeysByType<Walk, string | undefined>;
     const stringCollator = new Intl.Collator();
-    return (
-      walks?.toSorted(
-        (a, b) => direction * stringCollator.compare(a[stringField] ?? '', b[stringField] ?? ''),
-      ) ?? []
+    return walks.toSorted(
+      (a, b) => direction * stringCollator.compare(a[stringField] ?? '', b[stringField] ?? ''),
     );
   } else {
     const numberField = field as KeysByType<Walk, number>;

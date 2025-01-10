@@ -3,7 +3,7 @@ import HelpModal from '@/components/HelpModal.vue';
 import SidebarContent from '@/components/SidebarContent.vue';
 import UploadModal from '@/components/UploadModal.vue';
 import type { Point, PointOnLine } from '@/interfaces/Point';
-import Walk from '@/interfaces/Walk';
+import type Walk from '@/interfaces/Walk';
 
 import { tagComparator } from '@/utils/comparators';
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
