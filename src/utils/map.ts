@@ -1,9 +1,12 @@
 import { bounds as viewportBounds } from '@placemarkio/geo-viewport';
 import { toGeoJSON } from '@mapbox/polyline';
 import type { Feature, FeatureCollection, LineString } from 'geojson';
-import maplibregl from 'maplibre-gl';
+import * as mapboxgl from 'mapbox-gl';
 import { nextTick, watch } from 'vue';
 import type Walk from '@/interfaces/Walk';
+
+export const mapboxToken =
+  'pk.eyJ1IjoiY2hhcmRpbmciLCJhIjoiY2tocjJpcW5wMGYyOTJydDBicTZvam8xcCJ9.ZJfnHJE_5dJNCsEsQCrwJw';
 
 export interface MapProperties {
   id: string;
@@ -20,8 +23,8 @@ export enum MapLayer {
 }
 
 const fromZoom = (
-  ...pairs: (readonly [zoom: number, value: number])[]
-): maplibregl.ExpressionSpecification => [
+  ...pairs: (readonly [zoom: number, value: unknown])[]
+): mapboxgl.ExpressionSpecification => [
   'interpolate',
   ['linear'],
   ['zoom'],
@@ -43,16 +46,16 @@ const makeGeoJsonData = (
     })),
 });
 
-const makeGeoJson = (walks: readonly Walk[] = []): maplibregl.GeoJSONSourceSpecification => ({
+const makeGeoJson = (walks: readonly Walk[] = []): mapboxgl.GeoJSONSourceSpecification => ({
   type: 'geojson',
   data: makeGeoJsonData(walks),
 });
 
 interface LayerDef {
   source: MapSourceLayer;
-  color: maplibregl.ExpressionSpecification | string;
-  width: maplibregl.ExpressionSpecification | number;
-  opacity: maplibregl.ExpressionSpecification | number;
+  color: mapboxgl.ExpressionSpecification | string;
+  width: mapboxgl.ExpressionSpecification | number;
+  opacity: mapboxgl.ExpressionSpecification | number;
 }
 
 const layers: Record<MapLayer, LayerDef> = {
@@ -70,7 +73,7 @@ const layers: Record<MapLayer, LayerDef> = {
   },
 };
 
-const buildLineLayer = (id: string, layer: LayerDef): maplibregl.LayerSpecification => ({
+const buildLineLayer = (id: string, layer: LayerDef): mapboxgl.Layer => ({
   id,
   type: 'line',
   source: layer.source,
@@ -81,7 +84,7 @@ const buildLineLayer = (id: string, layer: LayerDef): maplibregl.LayerSpecificat
   },
 });
 
-export const addLayersToMap = (map: maplibregl.Map) => {
+export const addLayersToMap = (map: mapboxgl.Map) => {
   Object.values(MapSourceLayer).forEach(
     (id) => map.getSource(id) ?? map.addSource(id, makeGeoJson()),
   );
@@ -93,18 +96,18 @@ export const addLayersToMap = (map: maplibregl.Map) => {
 };
 
 export const applyWalks = (
-  map: maplibregl.Map,
+  map: mapboxgl.Map,
   next: readonly Walk[],
   sourceID: MapSourceLayer,
 ): void => {
-  const source = map.getSource<maplibregl.GeoJSONSource>(sourceID);
+  const source = map.getSource<mapboxgl.GeoJSONSource>(sourceID);
   source?.setData(makeGeoJsonData(next));
 };
 
 const surround = (
-  point: maplibregl.Point,
+  point: mapboxgl.Point,
   offset: number,
-): [maplibregl.PointLike, maplibregl.PointLike] => [
+): [mapboxgl.PointLike, mapboxgl.PointLike] => [
   [point.x - offset, point.y + offset],
   [point.x + offset, point.y - offset],
 ];
@@ -118,7 +121,7 @@ interface UseMapSelectionConfig {
 }
 
 interface UseMapSelection {
-  click: (e: maplibregl.MapMouseEvent) => void;
+  click: (e: mapboxgl.MapMouseEvent) => void;
 }
 
 export const useMapSelection = ({
@@ -142,7 +145,7 @@ export const useMapSelection = ({
     emitUpdate(localSelection);
   }
 
-  const click = (e: maplibregl.MapMouseEvent): void => {
+  const click = (e: mapboxgl.MapMouseEvent): void => {
     const map = e.target;
     const originalEvent = e.originalEvent;
     // Ignore duplicate clicks
@@ -163,7 +166,7 @@ export const useMapSelection = ({
   return { click };
 };
 
-export function greaterBounds(bounds: maplibregl.LngLatBoundsLike, map: maplibregl.Map) {
+export function greaterBounds(bounds: mapboxgl.LngLatBoundsLike, map: mapboxgl.Map) {
   const { center, zoom } = map.cameraForBounds(bounds) ?? {};
   if (!center || !zoom) {
     return bounds;
@@ -173,5 +176,5 @@ export function greaterBounds(bounds: maplibregl.LngLatBoundsLike, map: maplibre
     Math.floor(map.getCanvas().offsetHeight),
   ];
   // Mapbox vector tiles are 512x512, as opposed to the library's assumed default of 256x256, hence the final `512` argument
-  return viewportBounds(maplibregl.LngLat.convert(center).toArray(), zoom, dimensions, 512);
+  return viewportBounds(mapboxgl.LngLat.convert(center).toArray(), zoom, dimensions, 512);
 }

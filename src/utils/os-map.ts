@@ -1,7 +1,9 @@
 import type { GeoJSON } from 'geojson';
-import type * as maplibregl from 'maplibre-gl';
+import type * as mapboxgl from 'mapbox-gl';
 
-export const ukBounds: maplibregl.LngLatBoundsLike = [
+export const osKey = 'q6ygAjaocSqBV553jubhAFqd9o4yiczG';
+
+export const ukBounds: mapboxgl.LngLatBoundsLike = [
   [-10.76418, 49.528423],
   [1.9134116, 61.331151],
 ];
@@ -27,31 +29,32 @@ const southCover: GeoJSON = {
   },
 };
 
-function removeBackground(map: maplibregl.Map) {
-  const backLayerId = map.getLayersOrder()[0];
-  if (map.getLayer(backLayerId)?.type === 'background') {
+function removeBackground(map: mapboxgl.Map) {
+  const backLayerId = map.getStyle()?.layers[0].id;
+  if (backLayerId && map.getLayer(backLayerId)?.type === 'background') {
     map.removeLayer(backLayerId);
   }
 }
 
-export function addOsAttribution(map: maplibregl.Map) {
+export function addOsAttribution(map: mapboxgl.Map) {
   const esri = map.getSource('esri');
   if (esri) {
     esri.attribution = `Contains OS data © Crown copyright and database rights ${new Date().getFullYear().toFixed(0)}`;
   }
 }
 
-export function overrideOsMap(map: maplibregl.Map) {
+export function overrideOsMap(map: mapboxgl.Map) {
   const backgroundLayerName = 'Background';
-  const backgroundLayer = map.getLayer(backgroundLayerName);
-  const backgroundColor = backgroundLayer?.getPaintProperty('fill-color') as string | undefined;
+  const backgroundColor = map.getPaintProperty(backgroundLayerName, 'fill-color') as
+    | string
+    | undefined;
   if (backgroundColor) {
     map.getContainer().style.backgroundColor = backgroundColor;
 
     const coverLayerId = 'south-cover';
 
     if (!map.getSource(coverLayerId)) {
-      map.addSource('south-cover', {
+      map.addSource(coverLayerId, {
         type: 'geojson',
         data: southCover,
       });
@@ -60,9 +63,9 @@ export function overrideOsMap(map: maplibregl.Map) {
     if (!map.getLayer(coverLayerId)) {
       map.addLayer(
         {
-          id: 'south-cover',
+          id: coverLayerId,
           type: 'fill',
-          source: 'south-cover',
+          source: coverLayerId,
           layout: {},
           paint: { 'fill-color': backgroundColor },
         },

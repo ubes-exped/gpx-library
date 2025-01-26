@@ -1,56 +1,38 @@
 <script lang="ts">
-import * as maplibregl from 'maplibre-gl';
+import * as mapboxgl from 'mapbox-gl';
 import type { PointOnLine } from '@/interfaces/Point';
-import { computed, onBeforeUnmount, onMounted, ref, useCssModule, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useCssModule, watch } from 'vue';
 import {
   addLayersToMap,
   applyWalks,
   greaterBounds,
+  mapboxToken,
   MapSourceLayer,
   useMapSelection,
 } from '@/utils/map';
-import 'maplibre-gl/dist/maplibre-gl.css';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import { useRouter } from 'vue-router';
-import { addOsAttribution, overrideOsMap, ukBounds } from '@/utils/os-map';
+import { addOsAttribution, osKey, overrideOsMap, ukBounds } from '@/utils/os-map';
+import MaterialIcon from './MaterialIcon.vue';
+import { MapStyle, useMapStyle } from '@/utils/map-style';
 
 declare global {
   interface Window {
-    cachedMapElement?: maplibregl.Map;
+    cachedMapElement?: mapboxgl.Map;
   }
 }
 
-const osKey = 'q6ygAjaocSqBV553jubhAFqd9o4yiczG';
-
-class LinkControl implements maplibregl.IControl {
-  constructor(
-    private readonly href: string,
-    private readonly className?: string,
-    private readonly text?: string,
-  ) {}
-
-  onAdd() {
-    const control = document.createElement('a');
-    control.href = this.href;
-    control.target = '_blank';
-    control.classList.add('maplibregl-ctrl');
-    if (this.className) control.classList.add(this.className);
-    if (this.text) control.innerText = this.text;
-    return control;
-  }
-  onRemove() {
-    // no-op
-  }
-  getDefaultPosition(): maplibregl.ControlPosition {
-    return 'bottom-left';
-  }
-}
+const mapStyleUrls: Record<MapStyle, string> = {
+  [MapStyle.OS_MAP]: 'https://api.os.uk/maps/vector/v1/vts/resources/styles?srs=3857&key=' + osKey,
+  [MapStyle.MAPBOX]: '/mapbox-style.json',
+};
 </script>
 
 <script setup lang="ts">
 import polyline from '@mapbox/polyline';
 import type Walk from '@/interfaces/Walk';
 
-const center = defineModel<maplibregl.LngLatLike>('center');
+const center = defineModel<mapboxgl.LngLatLike>('center');
 const zoom = defineModel<number>('zoom');
 const selected = defineModel<string>('selected');
 
@@ -66,7 +48,8 @@ const router = useRouter();
 const style = useCssModule();
 
 const container = ref<HTMLDivElement>();
-const mapStyle = ref('https://api.os.uk/maps/vector/v1/vts/resources/styles?srs=3857&key=' + osKey);
+
+const { mapStyle, nextMapStyle } = useMapStyle();
 
 const makeMarker = () => {
   const wrapper = document.createElement('div');
@@ -77,35 +60,38 @@ const makeMarker = () => {
 };
 
 if (!window.cachedMapElement) {
-  const container = document.createElement('div');
-  container.id = 'map-container';
-
-  const newMap = new maplibregl.Map({
-    container,
-    style: mapStyle.value,
+  const newMap = new mapboxgl.Map({
+    accessToken: mapboxToken,
+    container: document.createElement('div'),
+    style: mapStyleUrls[mapStyle.value],
     center: center.value,
     zoom: zoom.value,
     maxZoom: 16 * (1 - Number.EPSILON),
   });
 
-  newMap.addControl(new maplibregl.LogoControl({ compact: false }));
-  newMap.addControl(new LinkControl('https://www.ordnancesurvey.co.uk/', style.osLogo));
-  newMap.addControl(new maplibregl.FullscreenControl({ container: document.body }), 'top-right');
+  newMap.addControl(new mapboxgl.FullscreenControl({ container: document.body }), 'top-right');
   newMap.addControl(
-    new maplibregl.NavigationControl({ showZoom: false, visualizePitch: true }),
+    new mapboxgl.NavigationControl({ showZoom: false, visualizePitch: true }),
     'top-right',
   );
 
-  newMap.addControl(new maplibregl.ScaleControl(), 'bottom-left');
+  newMap.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
 
   window.cachedMapElement = newMap;
 }
 const map = window.cachedMapElement;
 
+const topRight = map.getContainer().querySelector(`.mapboxgl-ctrl-top-right`);
+const bottomLeft = map.getContainer().querySelector(`.mapboxgl-ctrl-bottom-left`);
+
 const resize = () => {
   map.resize();
-  const newBounds = greaterBounds(ukBounds, map);
-  map.setMaxBounds(newBounds);
+  if (mapStyle.value === MapStyle.OS_MAP) {
+    const newBounds = greaterBounds(ukBounds, map);
+    map.setMaxBounds(newBounds);
+  } else {
+    map.setMaxBounds(null as never); // Remove the max bounds
+  }
 };
 
 onMounted(() => {
@@ -122,16 +108,41 @@ map.on('moveend', () => {
 map.on('click', (ev) => {
   click(ev);
 });
-void map.once('style.load', () => {
-  mapLoaded(map);
+
+map.on('dblclick', (ev) => {
+  dblclick(ev);
 });
 
-const sourcedataSubscription = map.on('sourcedata', (e) => {
-  if (e.sourceId === 'esri' && e.isSourceLoaded) {
-    sourcedataSubscription.unsubscribe();
+const osMapSourcedataHandler = (e: mapboxgl.MapSourceDataEvent) => {
+  if (e.sourceId === 'esri') {
+    map.off('sourcedata', osMapSourcedataHandler);
     overrideOsMap(map);
   }
+};
+
+watch(mapStyle, (mapStyle) => {
+  map.setStyle(mapStyleUrls[mapStyle]);
 });
+
+watch(
+  mapStyle,
+  (mapStyle) => {
+    map.once('style.load', () => {
+      mapLoaded(map);
+
+      if (mapStyle === MapStyle.OS_MAP) {
+        overrideOsMap(map);
+      }
+    });
+
+    if (mapStyle === MapStyle.OS_MAP) {
+      map.on('sourcedata', osMapSourcedataHandler);
+    } else {
+      map.off('sourcedata', osMapSourcedataHandler);
+    }
+  },
+  { immediate: true },
+);
 
 onMounted(() => {
   window.addEventListener('transitionend', resize, { passive: true });
@@ -140,8 +151,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('transitionend', resize);
 });
-
-watch(mapStyle, (style) => map.setStyle(style));
 
 watch(
   () => walks,
@@ -153,7 +162,7 @@ watch(selectedWalks, (selectedWalks) => {
   applyWalks(map, selectedWalks, MapSourceLayer.SELECTED);
 });
 
-const mapLoaded = (map: maplibregl.Map) => {
+const mapLoaded = (map: mapboxgl.Map) => {
   resize();
   addOsAttribution(map);
   addLayersToMap(map);
@@ -162,11 +171,11 @@ const mapLoaded = (map: maplibregl.Map) => {
   applyWalks(map, selectedWalks.value, MapSourceLayer.SELECTED);
 };
 
-const zoomend = (map: maplibregl.Map): void => {
+const zoomend = (map: mapboxgl.Map): void => {
   zoom.value = map.getZoom();
 };
 
-const moveend = (map: maplibregl.Map): void => {
+const moveend = (map: mapboxgl.Map): void => {
   center.value = map.getCenter();
 };
 
@@ -179,7 +188,7 @@ const flyToSelection = () => {
   const coordinates = polyline.decode(walk.polyline).map<[number, number]>(([y, x]) => [x, y]);
   const bounds = coordinates.reduce(
     (acc, coord) => acc.extend(coord),
-    new maplibregl.LngLatBounds(coordinates[0], coordinates[0]),
+    new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]),
   );
   map.fitBounds(bounds, { padding, maxZoom: 20 });
 };
@@ -193,7 +202,14 @@ const { click } = useMapSelection({
   },
 });
 
-const hoveredMarker = new maplibregl.Marker(makeMarker());
+function dblclick(e: mapboxgl.MapMouseEvent) {
+  if (selected.value) {
+    e.preventDefault();
+    void nextTick(flyToSelection);
+  }
+}
+
+const hoveredMarker = new mapboxgl.Marker(makeMarker());
 
 watch(
   () => hoveredPoint,
@@ -214,17 +230,32 @@ watch(
 
 <template>
   <div ref="container" :class="$style.mapContainer"></div>
+  <Teleport :to="bottomLeft">
+    <a
+      v-if="mapStyle === MapStyle.OS_MAP"
+      href="https://www.ordnancesurvey.co.uk/"
+      target="_blank"
+      :class="['mapboxgl-ctrl', $style.osLogo]"
+    ></a>
+  </Teleport>
+  <Teleport :to="topRight">
+    <div class="mapboxgl-ctrl mapboxgl-ctrl-group">
+      <button @click="nextMapStyle">
+        <MaterialIcon>layers</MaterialIcon>
+      </button>
+    </div>
+  </Teleport>
 </template>
 
 <style lang="scss" module>
 .mapContainer {
   display: contents;
 
-  :global(.maplibregl-map) {
+  :global(.mapboxgl-map) {
     flex: 1;
     z-index: 0;
 
-    :global(.maplibregl-canvas) {
+    :global(.mapboxgl-canvas) {
       cursor: pointer;
     }
   }
@@ -251,7 +282,7 @@ watch(
   box-sizing: content-box;
 }
 
-:global(.maplibregl-ctrl-bottom-right) {
+:global(.mapboxgl-ctrl-bottom-right) {
   margin-left: 100px;
 }
 </style>
